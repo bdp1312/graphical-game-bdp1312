@@ -1,5 +1,8 @@
 
 
-class Item {
+class Item (
+    name: String,
+    held: Boolean,
+    ){
   
 }
