@@ -1,21 +1,25 @@
 
 
-class Room (
+case class Room (
     name: String,
-    dscrp: String
-    loot: List[Item], -mutable list
-    mapvals: Array [Int])
+    dscrp: String,
+    loot: List [Item], //mutable list
+    mapvals: Array [Int],
     neighbors: Array [String])
     {
 
- def addItem(Item)
+ def addItem(Item:) Unit {
    add Item to list
+}
  def removeItem
    remove Item from list
  def print info
    room description 
    print room inventory
-   print all nonempty neghbors
+     for each item in inventory
+       print item.name
+       print item.dscrp
+   print all nonempty neighbors
      for 
   
 }
@@ -31,13 +35,8 @@ object Room {
    val lines = source.getLines()
    val r = Array.fill(lines.next.toInt)(readRoom(lines))
    source.close
-   r
+   r  
   }
-  
-  
-  
-  
-  
   def readRoom(lines:Iterator[String}): Room = {
     val name = lines.next()
     val dscrp = lines.next()

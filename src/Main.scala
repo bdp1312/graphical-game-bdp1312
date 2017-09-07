@@ -14,7 +14,7 @@ close file
 create instance of player
 call player constructor
 
-create Array[String] = ("up", "down", "east", "west", "north", "south")
+
 
 
 
