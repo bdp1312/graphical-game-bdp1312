@@ -11,8 +11,14 @@ case class Room (
  def addItem(Item:) Unit {
    add Item to list
 }
- def removeItem
-   remove Item from list
+ def removeItem(Int)
+   /**
+    * remove Item from room inventory
+    */
+ 
+ /**
+  * print room description
+  */
  def print info
    room description 
    print room inventory
@@ -24,7 +30,9 @@ case class Room (
   
 }
 
-
+/**
+ * takes room input from file
+ */
 
 
 object Room {
