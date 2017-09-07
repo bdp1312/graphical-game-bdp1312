@@ -1,7 +1,11 @@
 
-
+import io.StdIn._
 object Main {
-  
+  def main(args:Array[String]):Unit = {
+    println("My Mud Game")
+    
+  }
+}
  /**
   * main, in this order,
   * calls room constructors
@@ -13,20 +17,13 @@ object Main {
   */
 
 
-create all instances of room
-open file, get number of rooms
-for each room
-  call room constructor,
-  add room to list of rooms
-close file
-
-create instance of player
-call player constructor
-}
-
-
-
-
-
-
-
+//create all instances of room
+//open file, get number of rooms
+//for each room
+//  call room constructor,
+//  add room to list of rooms
+//close file
+//
+//create instance of player
+//call player constructor
+//}

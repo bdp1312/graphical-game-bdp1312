@@ -9,7 +9,7 @@ class Player(
      * to store my inventory data sets, am curantly considering 
      * Array, List, and Array Buffer
      */
-    private var location: Room) {
+    private var location: Room) { //track location by int or room object
   /**
    * one of the most important parts of game
    * locations is a private varrible that holds an instance of room class
@@ -30,7 +30,7 @@ class Player(
   /**
    * 
    */
-  def addItem(Item): Unit{
+  def addItem(Item): Unit = {
     inventory += 
     }
   /**
@@ -88,24 +88,26 @@ class Player(
        } 
   }
 
-def player.addItem(itemName: String): item {
+
+  def player.addItem(itemName: String): item {
   /**
    * searches player.location.invenotry for Item with same name as aruguement
    * if Item is found call location.removeItem, else invalid
    * if lotion.removeItem returns Item add item to player inventory else invalid
    * 
    */
-  for each item in inventory
-    if itemName == Item.name 
+    for each item in inventory
+      if itemName == Item.name 
       
-      location.removeItem
-      return itemName
-    else 
-      return invalid command
+        location.removeItem
+        return itemName
+      else 
+        return invalid command
+  }
 
-def player.removeItem(Item); {
+  def player.removeItem(Item); {
   
-}
+  }
   
 object Player
 /**
