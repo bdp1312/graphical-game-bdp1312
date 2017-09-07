@@ -1,8 +1,27 @@
 
 
-class Room {
+class Room (
+    name: String,
+    dscrp: String
+    loot: List[Item], -mutable list
+    mapvals: Array [Int])
+    neighbors: Array [String])
+    {
+
+ def addItem(Item)
+   add Item to list
+ def removeItem
+   remove Item from list
+ def print info
+   room description 
+   print room inventory
+   print all nonempty neghbors
+     for 
   
 }
+
+
+
 
 object Room {
   val rooms = readRoomsFromFile()
@@ -15,11 +34,16 @@ object Room {
    r
   }
   
+  
+  
+  
+  
   def readRoom(lines:Iterator[String}): Room = {
     val name = lines.next()
-    val desc = lines.next()
+    val dscrp = lines.next()
     val items = List.fill(lines.next.toInt) {
-      val itm = lines.next.split(";")
+      val itm = lines.next.split(";") 
+      //for each item call item constructor
       Item(itm(0). itm(1))
     }
   
