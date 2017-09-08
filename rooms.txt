@@ -1,4 +1,5 @@
 2 //num rooms in file
+0
 The Inn
 This is a place where you can rent a room to sleep.
 . //signifies end of description 
@@ -7,9 +8,9 @@ sword;sharp pointy thing.
 chair;You drink from this.
 mug;You drink form this.
 -1 -1  1 -1 -1 -1 corresponds to north south east west up down
-"", "", "The Harbor", "", "", "",
+1
 The Harbor
 You smell the sea air
 0
--1 -1 -1 1 -1 -1 
-"", "", "", "The Inn", "", "",
+-1 -1 -1 0 -1 -1 
+
