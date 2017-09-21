@@ -1,8 +1,17 @@
 
+package mudGame
+
 import io.StdIn._
-object Main {
-  def main(args:Array[String]):Unit = {
+object Main extends App {
     println("My Mud Game")
+    var input = ""
+    val player = new Player("bill", Nil, Room.rooms("The Inn #0"))
+    while (player.stillHere == true){
+      println("Enter a command")
+      input = readLine()
+      player.command(input)
+    
+
     
   }
 }

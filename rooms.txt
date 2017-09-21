@@ -1,16 +1,17 @@
-2 //num rooms in file
-0
-The Inn
+3
+The Inn #0
 This is a place where you can rent a room to sleep.
-. //signifies end of description 
-3 //num items
+3 
 sword;sharp pointy thing.
-chair;You drink from this.
+chair;You can sit on this.
 mug;You drink form this.
--1 -1  1 -1 -1 -1 corresponds to north south east west up down
-1
-The Harbor
+-1, -1,  The Harbor #1, -1, -1, -1 
+The Harbor #1
 You smell the sea air
 0
--1 -1 -1 0 -1 -1 
-
+-1, -1, -1, The Inn #0, The Shed #2, -1 
+The Shed #2
+You can store things here.
+1
+Shovel; Digs ditches.
+-1, -1, -1, -1, -1, The Harbor #1 
