@@ -1,5 +1,3 @@
-
-
 package mudGame
 
 class Item (
@@ -15,9 +13,10 @@ class Item (
   }
 }
 
-object item {
-  /**
-   * takes input from file, initialies name and effect
-   */
+object Item {
+  def apply(n: xml.Node): Item = {
+    val name = (n \ "@name").text.trim
+    val desc = (n \ "desc").text.trim
+    new Item(name, desc)
+  }
 }
-  

@@ -1,129 +1,119 @@
 package mudGame
 
+import akka.actor.Actor
+import akka.actor.ActorRef
 import collection.immutable.Map
 import collection.immutable.Map
 
 class Room(
+    //val keyword: String,
+    val keword: String,
     val name: String,
     val desc: String,
     private var _loot: List [Item], //change to Set type
-    private val _mapvals: Array [String]) {
+    private val exitNames: Array [String]) extends Actor {
   
-  def mapvals = _mapvals
+  private var playersInRoom = collection.mutable.Buffer[ActorRef]()
+  
   def loot = _loot
   
-  def addItem(item: Item): Boolean = {
-    _loot =  item :: _loot
-    return true
-   }
-    
+  /**
+   * Prints Room Description
+   */
+
+
+  println("Made room: "+name)
   
-   //add Item to list
-   
- 
- 
- /**
-    * remove Item from room inventory
-    */
-  def removeItem(item: Item): Boolean = {
-    println(item)
-    if (loot.isEmpty) {
-      return false
-    } else {
-      for (i <- 0 until loot.length) {
-        if (item == loot(i)){
-          val newLoot = loot.take(i) ++ loot.drop(i+1)
+  private var exits: Array[Option[ActorRef]] = Array.empty
+  
+  import Room._
+  
+  /**
+   * Takes actor messages 
+   */
+  def receive = {
+    case LinkExits(rooms) =>
+      exits = exitNames.map(rooms.get)
+    /**
+     * remove Item from room inventory
+     */
+    case GetItem(itemName: String) =>
+      println(itemName)
+      if (loot.isEmpty) {
+        sender ! Player.NoSuchItem
+      } else {
+        for (i <- 0 until loot.length) {
+          if (itemName == loot(i).name){
+            val prize = loot(i)
+            val newLoot = loot.take(i) ++ loot.drop(i+1)
           _loot = newLoot
-          printDesc()
-          return true
-        }
+            sender ! prize
+            sender ! Player.PrintItemDesc(prize)
+          }
+          if (loot(loot.length).name != itemName)
+            sender ! Player.NoSuchItem
+          }
       }
-      
-      return false
-    }
+    /**
+     * add item to room inventory
+     */
+    case DropItem(item) =>
+      _loot =  item :: _loot
+    /**
+     * Takes actor message, calls printDesc
+     */
+    case PrintDesc =>
+      val description = s"$name, $desc\n loot.foreach(_.name\n)"
+    
+    /**
+     * Takes player, Adds player to playersInRoom
+     */
+    case AddPlayer(player: ActorRef) =>
+      playersInRoom += player
+    /**
+     * Remove Player form playersInRoom
+     */
+    case DropPlayer(player: ActorRef) =>
+      playersInRoom -= player
+          
+    /**
+     * error message 
+     */
+    case m =>
+      println("Oops! Bad message to room: "+m)
   }
-   //Remove item from list
+} 
+  
+//Remove item from list
    
  
    
-  def printDesc(): Unit = {
-   println(desc)
-   for (i <-0 until loot.length)
-     loot(i).printDesc()
-   }
- /**
-  * print room description
-  */
-// def print info {
-//   room description 
-//   print room inventory
-//     for each item in inventory
-//       print item.name
-//       print item.dscrp
-//   print all nonempty neighbors
-//     for 
+ 
+ 
 
   
+
 /**
- * takes room input from file
+ * companion object to room
  */
-}
-/*
 object Room {
-//  val Map: List[Room] = Nil
-  val directions = Array("North", "South", "East", "West", "Up", "Down")
-  directions.foreach(println)
-
-  val rooms = readRoomsFromFile()
+  case class LinkExits(rooms: Map[String, ActorRef])
+  case class GetItem(itemName: String)
+  case class DropItem(item: Item)
+  case object PrintDesc
+  case class AddPlayer(player: ActorRef)
+  case class DropPlayer(player: ActorRef)
+  // More message types here
   
-   def readRoomsFromFile(): Array[Room] = {
-     val source = io.Source.fromFile("rooms.txt")
-     val lines = source.getLines()
-     val r = Array.fill(lines.next.trim.toInt)(readRoom(lines))
-     source.close
-     r  
-   }
-  def readRoom(lines:Iterator[String]): Room = {
-    val name = lines.next()
-    val desc = lines.next()
-    val loot = List.fill(lines.next.trim.toInt) {
-       val itm = lines.next.split(";")
-       new Item(itm(0), itm(1))
-     }             
-    val mapvals = lines.next.split(",").map(_.trim.toInt)
-    new Room( name, desc, loot, mapvals)
-  }  
-}
-*/
-
-object Room {
-//  val Map: List[Room] = Nil
-  val directions = Array("North", "South", "East", "West", "Up", "Down")
-  directions.foreach(println)
-
-  val rooms = readRoomsFromFile()
-  
-   def readRoomsFromFile():Map[String, Room] = {
-     val source = io.Source.fromFile("rooms.txt")
-     val lines = source.getLines()
-     val r = Array.fill(lines.next.trim.toInt)(readRoom(lines))
-     source.close
-     var roomTup = Array[(String, Room)]()
-     println(r.length)
-     for ( i <- 0 until r.length){
-       roomTup = roomTup :+ (r(i).name, r(i))
-       //roomTup
-     }
-     return roomTup.toMap
-   }
-  def readRoom(lines:Iterator[String]): Room = {
-    val name = lines.next()
-    val desc = lines.next()
-    val loot = List.fill(lines.next.trim.toInt) {
-       val itm = lines.next.split(";")
-       new Item(itm(0), itm(1))
-     }             
-    val mapvals = lines.next.split(",").map(_.trim)
-    new Room( name, desc, loot, mapvals)
-  }  
-}
+  /**
+   * room apply method 
+   */
+  def apply(n: xml.Node): (String, () => Room) = {
+    val keyword = (n \ "@keyword").text.trim
+    val name = (n \ "@name").text.trim
+    val desc = (n \ "desc").text.trim
+    val items = (n \ "item").map(Item.apply).toList
+    val exits = (n \ "exits").text.split(",").map(_.trim)
+    (keyword, () => new Room(keyword, name, desc, items, exits))
+  }
+}  

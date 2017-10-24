@@ -1,30 +1,43 @@
 package mudGame
 
+import akka.actor.Actor
+import akka.actor.ActorRef
+import java.io.PrintStream
+import java.io.BufferedReader
 
-class Player(
-    
+class Player(  
     val name: String,
-    //val health: Double,
-    
+    //private var health: Double,
     private var inventory: List[Item],
-    /**
-     * Thus far, my biggest holdup is finding proper way
-     * to store my inventory data sets, am curantly considering 
-     * Array, List, and Array Buffer
-     */
-    private var loc: Room) { //track location by int or room object
-  /**
-   * one of the most important parts of game
-   * locations is a private varrible that holds an instance of room class
-   * all functions of movement and moving items all require a call to 
-   * player.location.funtion
-   */
+    private var loc: ActorRef,
+    out: PrintStream,
+    in: BufferedReader) extends Actor { //change to an actor ref
   
-  
-// watch out of single character hitting incorrect whole letter command
+  println(s"Player $name added.")
+   
   private var _stillHere = true
   
   def stillHere = _stillHere
+  import Player._
+  def receive = {
+    case CheckForInput =>
+      if(in.ready()){
+        val msg = in.readLine()
+        command(msg.toString())        
+      }
+    case AddItem(itemName: String) =>
+      loc ! Room.GetItem(itemName)
+      case NoSuchItem =>
+        println("No such Item")
+      case prize: Item =>
+        inventory = prize :: inventory
+        println(s"${prize.name} added.")        
+    case EnterRoom(room) => loc = room
+      //Set loc to room arguement
+    case PrintItemDesc(item) =>  item.printDesc()
+    
+  }
+  
   
   def command(comm: String): Unit = {
     var input = comm.split(" ")
@@ -64,7 +77,7 @@ class Player(
           listInventory()
         }
         else if (input(1).contains("room") || input(1).contains("r") || input(0) == ("lr")) {
-          loc.printDesc()
+          loc ! Room.PrintDesc
         }
         
         else if (input(1).contains("up") || input(1) == ("u") || input(0) == ("lu")) {
@@ -160,18 +173,7 @@ class Player(
   }
   
   def addItem(itemName: String): Unit = {
-    val position = findItem(itemName, loc.loot)
-     if (position != -1 && position <= loc.loot.length) {
-      val prize = loc.loot(position)
-      if (loc.removeItem(prize)){
-        inventory = prize :: inventory
-        listInventory()
-        println(s"${prize.name} added.")
-      } 
-    
-    } else {
-      println(s"$itemName not found")
-    }
+
   }
 
   
@@ -191,22 +193,12 @@ class Player(
     return prize
  }
  
-
- /*addItem
-  * takes itemName: String
-  * takes Item's position from findItem()
-  * calls function to remove Item from Room inventory
-  * adds Item to player inventory
-  *  
-  */
- 
  /** invalidComm
   *  prints Invalid Command message
   */
  def invalidComm(): Unit = {
     println("Invalid Command. For full list of commands enter \"help\"")
   }   
-  
  
  /**listInventory
   * calls Item print function for each Item in player inventory
@@ -215,108 +207,14 @@ class Player(
    for (i <- 0 until inventory.length) {
      println(s"${inventory(0).name}: ${inventory(0).effect}")
    }
- }    
-
-  
-//  def printInventory(): Unit = {
-//    inventory.foreach(_.printDesc())
-//  }
-  
-  
-  
-////  /**
-////   * prints whole inventory, includes names and descriptions
-////   */
-//  /**
-//   * command handals all user input
-//   * takes string
-//   * splits string by spaces
-//   * compares case keywords to the elements of input()
-//   * to determine the proper funtion to call
-//   */
-// 
-//
-//  def player.addItem(itemName: String): item {
-//  /**
-//   * searches player.location.invenotry for Item with same name as aruguement
-//   * if Item is found call location.removeItem, else invalid
-//   * if lotion.removeItem returns Item add item to player inventory else invalid
-//   * 
-//   */
-//    for each item in inventory
-//      if itemName == Item.name 
-//      
-//        location.removeItem
-//        return itemName
-//      else 
-//        return invalid command
-//  }
-//
-//  def player.removeItem(Item); {
-//  
-//  }
-  
-  //			which item(S)?
-//				specify byname
-//				call currantRoom.removeItem(item)
-//				  if .removeItem is false
-//				    invalid command
-//				  else
-//				    
-					    
-					
-  
-//	 	  remove item form player inventory
-//		    if player.RemoveItem is false
-//		      invalid command
-//		    else
-//		       call currant_room.addItem(dropped item)
- def addAll(): Unit = {
-    val itemNum = loc.loot.length
-    for( i <- 0 until itemNum){
-      val prize = loc.loot(i)
-      if (!loc.removeItem(prize)){
-        invalidComm()
-      } else {
-        inventory = prize :: inventory
-      }
-      
-    }
-  }
-
+ } 
 
 }
   
-//object Player
-///**
-// * player constructor 
-// * name = keyboard input
-// * inventory is empty
-// * location set to Inn Room
-// */
-//def apply() = new Player()
-//  
-//  name = keyboard input
-//  //health = 100
-//  inventory = nothing
-//  location = Inn
-// /**
-//  * exit function
-//  * lets player leave the game if location = the Inn Room 
-//  */
-//def exit() 
-//  if player.location.name == "Inn"
-//    terminate aplication 
-//  else 
-//    print invalid command
-
-  
-    /** 	Fuction adds all items from room inventory to player inventory
-   *  -incompleate
-   * 
-   */
-
-
-
-
-
+object Player {
+     case object CheckForInput
+     case class AddItem(itemName: String)
+     case object NoSuchItem
+     case class PrintItemDesc(item: Item)
+ 
+}
