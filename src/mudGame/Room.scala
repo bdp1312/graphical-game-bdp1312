@@ -7,7 +7,7 @@ import collection.immutable.Map
 
 class Room(
     //val keyword: String,
-    val keword: String,
+    val keyword: String,
     val name: String,
     val desc: String,
     private var _loot: List [Item], //change to Set type
@@ -47,8 +47,8 @@ class Room(
             val prize = loot(i)
             val newLoot = loot.take(i) ++ loot.drop(i+1)
           _loot = newLoot
-            sender ! prize
-            sender ! Player.PrintItemDesc(prize)
+            sender ! Player.AddItem(prize)
+            sender ! Player.Print(s"${prize.name}: ${prize.effect}")
           }
           if (loot(loot.length).name != itemName)
             sender ! Player.NoSuchItem
@@ -58,12 +58,14 @@ class Room(
      * add item to room inventory
      */
     case DropItem(item) =>
-      _loot =  item :: _loot
+      item :: _loot
+      sender ! Player.RemoveItem(item)
     /**
      * Takes actor message, calls printDesc
      */
     case PrintDesc =>
       val description = s"$name, $desc\n loot.foreach(_.name\n)"
+      sender ! Player.Print(description)
     
     /**
      * Takes player, Adds player to playersInRoom
@@ -75,23 +77,30 @@ class Room(
      */
     case DropPlayer(player: ActorRef) =>
       playersInRoom -= player
+    /**
+     * Takes exit value, enters it into exits list
+     * Returns result to sender
+     */
+    case GetExit(direction) =>
+      val player =  sender
+      val place = exitNames(direction)
+      if( place != "-1"){
+        RoomManager ! RoomManager.SendPlayerRoom(player, place)
+      }
+      else sender ! Player.Print("There is nothing here.")
+      
           
     /**
      * error message 
      */
     case m =>
-      println("Oops! Bad message to room: "+m)
+      println("Oops! Bad message to room: "+ m)
   }
 } 
   
 //Remove item from list
    
- 
-   
- 
- 
 
-  
 
 /**
  * companion object to room
@@ -103,6 +112,7 @@ object Room {
   case object PrintDesc
   case class AddPlayer(player: ActorRef)
   case class DropPlayer(player: ActorRef)
+  case class GetExit(direction: Int)
   // More message types here
   
   /**

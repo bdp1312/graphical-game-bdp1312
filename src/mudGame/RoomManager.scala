@@ -20,7 +20,13 @@ class RoomManager extends Actor {
   import RoomManager._
   
   def receive = {
-    case AddPlayerAtStart(player) =>
+    case SendPlayerRoom(player, place) =>
+      val room = rooms(place)
+      player ! Player.PlaceValue(room)
+    case ChangePlayerLocation(roomKeyword) =>
+      val newRoom = rooms(roomKeyword)
+      sender ! Player.EnterRoom(newRoom)
+      
       // player ! EnterRoom(rooms(startRoom))
     case m =>
       println("Oops! Bad message sent to RoomManager: "+m)
@@ -28,5 +34,7 @@ class RoomManager extends Actor {
 }
 
 object RoomManager {
-  case class AddPlayerAtStart(player: ActorRef)
+  case class SendPlayerRoom(player: ActorRef, place: String)
+  case class ChangePlayerLocation(roomKeyword: String)
+  case object m
 }

@@ -14,7 +14,7 @@ class Player(
     in: BufferedReader) extends Actor { //change to an actor ref
   
   println(s"Player $name added.")
-   
+  private var actionChoice = -1; 
   private var _stillHere = true
   
   def stillHere = _stillHere
@@ -25,20 +25,69 @@ class Player(
         val msg = in.readLine()
         command(msg.toString())        
       }
-    case AddItem(itemName: String) =>
-      loc ! Room.GetItem(itemName)
-      case NoSuchItem =>
-        println("No such Item")
-      case prize: Item =>
-        inventory = prize :: inventory
-        println(s"${prize.name} added.")        
+    case AddItem(prize: Item) => 
+      prize :: inventory
+      println(s"${prize.name} added.")
+    case RemoveItem(item) => 
+      for(i <- 0 until inventory.length){
+        if(inventory(i) == item){
+          val newInventory = inventory.take(i) ++ inventory.drop(i+1)
+        }  
+      }
+    case NoSuchItem =>
+        out.println("No such Item")
+               
     case EnterRoom(room) => loc = room
       //Set loc to room arguement
-    case PrintItemDesc(item) =>  item.printDesc()
+    /**
+     * prints message 
+     */
+    case Print(string) => out.println(string)
     
+    case CheckMove(exitVal) =>
+      if (exitVal == "-1") out.println("There is nothing this way")
+      else{
+        if(actionChoice == 0){
+          roomManager ! RoomManager.ChangePlayerLocation(exitVal)
+        }
+        if(actionChoice == 1){
+          
+        }
+      }
+        
+    
+    case m =>
+      println("Oops! Bad message to room: "+ m)  }
+  
+  def addItem(itemName: String): Unit = {
+
   }
-  
-  
+
+  /**
+   * takes input from comm
+   * sends message
+   */
+  def dropItem(itemName: String): Unit = {
+//    val position = findItem(itemName, inventory)
+//    println(position)
+//    if (position != -1 && position <= inventory.length) {
+//      val junk = inventory(position)
+//      if (loc.addItem(junk)){
+//        val newInventory = inventory.take(position) ++ inventory.drop(position+1)
+//        inventory = newInventory
+//        println(s"$junk dropped.")
+//      } else {
+//        println("You cannot drop this item here!")
+//      }
+//    }else {
+//      println(s"$itemName not found.")
+//    }    
+  }
+
+  /**
+   * Takes String comm
+   * calls function corresponding to the String entered
+   */
   def command(comm: String): Unit = {
     var input = comm.split(" ")
     if (input.length == 1){
@@ -66,8 +115,8 @@ class Player(
     else if (input(0).contains("south") || input(0) == ("s")) {
       move(5)
     }
-    else if (input(0).contains("add") || input(0) == ("ai")) {
-      addItem(input(1))                             
+    else if (input(0).contains("get") || input(0) == ("gi")) {
+      getItem(input(1))                             
     }
     else if (input(0).contains("drop") || input(0) == ("di")) {
       dropItem(input(1))
@@ -125,16 +174,9 @@ class Player(
  * move
  */
   def move(direction: Int): Unit = {
-    if (loc.mapvals(direction) == "-1") {
-     println("Nothing this way") 
-    }
-    else{
-      val newLoc = Room.rooms(loc.mapvals(direction))
-      loc = newLoc
-      loc.printDesc()
-    }
-  }
-  
+    actionChoice = 0
+    loc ! Room.GetExit(direction) 
+  } 
   /**
    * look out function
    * takes directional argument of Int
@@ -155,26 +197,7 @@ class Player(
    * searches player inventory for an item with matching name
    * if matching item is found return item. else invalid command
    */
-  def dropItem(itemName: String): Unit = {
-    val position = findItem(itemName, inventory)
-    println(position)
-    if (position != -1 && position <= inventory.length) {
-      val junk = inventory(position)
-      if (loc.addItem(junk)){
-        val newInventory = inventory.take(position) ++ inventory.drop(position+1)
-        inventory = newInventory
-        println(s"$junk dropped.")
-      } else {
-        println("You cannot drop this item here!")
-      }
-    }else {
-      println(s"$itemName not found.")
-    }    
-  }
   
-  def addItem(itemName: String): Unit = {
-
-  }
 
   
  /**FindItem
@@ -197,7 +220,7 @@ class Player(
   *  prints Invalid Command message
   */
  def invalidComm(): Unit = {
-    println("Invalid Command. For full list of commands enter \"help\"")
+    out.println("Invalid Command. For full list of commands enter \"help\"")
   }   
  
  /**listInventory
@@ -205,16 +228,33 @@ class Player(
   */
  def listInventory(): Unit = { 
    for (i <- 0 until inventory.length) {
-     println(s"${inventory(0).name}: ${inventory(0).effect}")
+     out.println(s"${inventory(0).name}: ${inventory(0).effect}")
    }
  } 
 
 }
   
 object Player {
-     case object CheckForInput
-     case class AddItem(itemName: String)
-     case object NoSuchItem
-     case class PrintItemDesc(item: Item)
- 
+  /**
+   * checks in for input,
+   * if there is input, sends it to command()
+   */
+  case object CheckForInput
+  /**
+   * adds Item to player inventory
+   * not to be confused with getItem()
+   */
+  case class AddItem(item: Item)
+  /**
+   * removes item from player inventory
+   */
+  case class RemoveItem(item: Item)
+  case object NoSuchItem
+  case class EnterRoom(room: ActorRef)
+  /**
+   * prints message 
+   */
+  case class Print(string: String)
+  case class CheckMove(exitVal: String)
+  case class PlaceValue(room: ActorRef)
 }
