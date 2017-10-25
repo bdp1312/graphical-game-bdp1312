@@ -34,9 +34,7 @@ class Room(
   def receive = {
     case LinkExits(rooms) =>
       exits = exitNames.map(rooms.get)
-    /**
-     * remove Item from room inventory
-     */
+    
     case GetItem(itemName: String) =>
       println(itemName)
       if (loot.isEmpty) {
@@ -54,38 +52,24 @@ class Room(
             sender ! Player.NoSuchItem
           }
       }
-    /**
-     * add item to room inventory
-     */
+    
     case DropItem(item) =>
       item :: _loot
       sender ! Player.RemoveItem(item)
-    /**
-     * Takes actor message, calls printDesc
-     */
+    
     case PrintDesc =>
       val description = s"$name, $desc\n loot.foreach(_.name\n)"
       sender ! Player.Print(description)
     
-    /**
-     * Takes player, Adds player to playersInRoom
-     */
-    case AddPlayer(player: ActorRef) =>
+    case AddPlayer(player) =>
       playersInRoom += player
-    /**
-     * Remove Player form playersInRoom
-     */
-    case DropPlayer(player: ActorRef) =>
+    case DropPlayer(player) =>
       playersInRoom -= player
-    /**
-     * Takes exit value, enters it into exits list
-     * Returns result to sender
-     */
     case GetExit(direction) =>
       val player =  sender
       val place = exitNames(direction)
       if( place != "-1"){
-        RoomManager ! RoomManager.SendPlayerRoom(player, place)
+        context.parent ! RoomManager.SendPlayerRoom(player, place)
       }
       else sender ! Player.Print("There is nothing here.")
       
@@ -107,11 +91,30 @@ class Room(
  */
 object Room {
   case class LinkExits(rooms: Map[String, ActorRef])
+  /**
+   * remove Item from room inventory
+   */
   case class GetItem(itemName: String)
+  /**
+   * add item to room inventory
+   */ 
   case class DropItem(item: Item)
+  /**
+   * Takes actor message, calls printDesc
+   */
   case object PrintDesc
+  /**
+   * Takes player, Adds player to playersInRoom
+   */  
   case class AddPlayer(player: ActorRef)
+  /**
+   * Remove Player form playersInRoom
+   */
   case class DropPlayer(player: ActorRef)
+  /**
+   * Takes exit value, enters it into exits list
+   * Returns result to sender
+   */
   case class GetExit(direction: Int)
   // More message types here
   

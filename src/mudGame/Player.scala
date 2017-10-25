@@ -14,7 +14,7 @@ class Player(
     in: BufferedReader) extends Actor { //change to an actor ref
   
   println(s"Player $name added.")
-  private var actionChoice = -1; 
+  private var actionChoice = -1; // replace with queue of tuple (calling method, direction arguement)
   private var _stillHere = true
   
   def stillHere = _stillHere
@@ -43,23 +43,16 @@ class Player(
      * prints message 
      */
     case Print(string) => out.println(string)
-    
-    case CheckMove(exitVal) =>
-      if (exitVal == "-1") out.println("There is nothing this way")
-      else{
-        if(actionChoice == 0){
-          roomManager ! RoomManager.ChangePlayerLocation(exitVal)
-        }
-        if(actionChoice == 1){
-          
-        }
-      }
-        
+     
+    case PlaceValue(room) =>
+      if(actionChoice == 0) sender ! RoomManager.ChangePlayerLocation(room)
+      if(actionChoice == 1) room ! Room.PrintDesc 
+  
     
     case m =>
       println("Oops! Bad message to room: "+ m)  }
   
-  def addItem(itemName: String): Unit = {
+  def getItem(itemName: String): Unit = {
 
   }
 
@@ -162,12 +155,7 @@ class Player(
   
 
 	def exit(): Unit = {
-	  if (loc.name == "The Inn #0"){
-	    println("Exitning game!")
-	    _stillHere = false        
-    }else{
-        println("No Leave")
-    }
+	 loc ! Room.DropPlayer(self)
 	}
 
 /**
@@ -180,15 +168,11 @@ class Player(
   /**
    * look out function
    * takes directional argument of Int
-   * calls Room.rooms(loc.mapvals(direction)).printDesc()
+   * Sends directional argument to loc
    */
   def lookOut(direction: Int): Unit = {
-    if (loc.mapvals(direction) == "-1") {
-     println("Nothing this way") 
-    }
-    else{
-      println(loc.mapvals(direction))
-    }
+    actionChoice = 1
+    loc ! Room.GetExit(direction) 
   }  
       
         

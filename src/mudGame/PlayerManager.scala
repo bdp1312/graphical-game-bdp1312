@@ -7,7 +7,7 @@ import akka.actor.ActorRef
 
 
 class PlayerManager extends Actor {  
-  val players: Map[Player.name, Player]
+  val players: Map[String, Player]
   import PlayerManager._
   def receive = {
     case makePlayer =>
@@ -17,14 +17,23 @@ class PlayerManager extends Actor {
       println("updating players")
       context.children.foreach(_ ! CheckForInput)
     case AddPlayerAtStart =>
-      RoomManager ! AddPlayerAtStart(newPlayer: Player )
+      RoomManager ! RoomManager.AddPlayerAtStart(newPlayer: Player )
       //player ! Player.enterRoom(rooms(startRoom))
   }
 }
 
 object PlayerManager {
+  /**
+   * Creates new instance of player
+   */
   case object makePlayer
+  /**
+   * Tells all players to check for input
+   */
   case object CheckForInput
+  /**
+   * sets new player name, puts player into the Inn
+   */
   case class SettupPlayer(player: Player, startingRoom: String)
 
 }

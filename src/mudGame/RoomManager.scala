@@ -23,8 +23,8 @@ class RoomManager extends Actor {
     case SendPlayerRoom(player, place) =>
       val room = rooms(place)
       player ! Player.PlaceValue(room)
-    case ChangePlayerLocation(roomKeyword) =>
-      val newRoom = rooms(roomKeyword)
+    case ChangePlayerLocation(room) =>
+      val newRoom = room
       sender ! Player.EnterRoom(newRoom)
       
       // player ! EnterRoom(rooms(startRoom))
@@ -35,6 +35,6 @@ class RoomManager extends Actor {
 
 object RoomManager {
   case class SendPlayerRoom(player: ActorRef, place: String)
-  case class ChangePlayerLocation(roomKeyword: String)
-  case object m
+  case class ChangePlayerLocation(room: ActorRef)
+  case class TeleportPlayer(player: ActorRef, roomKey: String)
 }
