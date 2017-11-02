@@ -121,29 +121,32 @@ class Player(
         else if (input(1).contains("room") || input(1).contains("r") || input(0) == ("lr")) {
           loc ! Room.PrintDesc
         }
-        
-        else if (input(1).contains("up") || input(1) == ("u") || input(0) == ("lu")) {
-          lookOut(0)
-        }
-         else if (input(1).contains("down") || input(1) == ("d") || input(0) == ("ld")) {
-          lookOut(1)
-        }        
-        else if (input(1).contains("east") || input(1) == ("e") || input(0) == ("le")) {
-          lookOut(2)
-        }
-        else if (input(1).contains("west") || input(1) == ("w") || input(0) == ("lw")) {
-          lookOut(3)
-        }
-        else if (input(1).contains("north") || input(1) == ("n") || input(0) == ("ln")) {
-          lookOut(4)
-        }
-        else if (input(1).contains("south") || input(1) == ("s") || input(0) == ("ls")) {
-          lookOut(5)
+        else if (input(1).contains("around") || input(1).contains("a") || input(0).contains("la")){
+          loc ! Room.PrintExits
         }
         
-        else {
-          invalidComm()
-        }
+//        else if (input(1).contains("up") || input(1) == ("u") || input(0) == ("lu")) {
+//          lookOut(0)
+//        }
+//         else if (input(1).contains("down") || input(1) == ("d") || input(0) == ("ld")) {
+//          lookOut(1)
+//        }        
+//        else if (input(1).contains("east") || input(1) == ("e") || input(0) == ("le")) {
+//          lookOut(2)
+//        }
+//        else if (input(1).contains("west") || input(1) == ("w") || input(0) == ("lw")) {
+//          lookOut(3)
+//        }
+//        else if (input(1).contains("north") || input(1) == ("n") || input(0) == ("ln")) {
+//          lookOut(4)
+//        }
+//        else if (input(1).contains("south") || input(1) == ("s") || input(0) == ("ls")) {
+//          lookOut(5)
+//        }
+//        
+//        else {
+//          invalidComm()
+//        }
     }
     else if (input(0).contains("exit")) {
       exit()    

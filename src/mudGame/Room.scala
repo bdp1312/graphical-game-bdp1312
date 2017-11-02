@@ -72,6 +72,10 @@ class Room(
         context.parent ! RoomManager.SendPlayerRoom(player, place)
       }
       else sender ! Player.Print("There is nothing here.")
+    case PrintExits =>
+      val directionalExits = Map(directions -> exitNames)
+      directionalExits.filter((t) => t._2 != "-1")
+      for (tup <- directionalExits) sender ! Player.Print(s"${tup._1}: ${tup._2}")
       
           
     /**
@@ -90,6 +94,9 @@ class Room(
  * companion object to room
  */
 object Room {
+  
+  val directions = Array[String]("Up", "Down", "East", "West", "North", "South")
+  
   case class LinkExits(rooms: Map[String, ActorRef])
   /**
    * remove Item from room inventory
@@ -116,6 +123,12 @@ object Room {
    * Returns result to sender
    */
   case class GetExit(direction: Int)
+  
+  /**
+   * Room returns all exit values != -1
+   */
+  case object PrintExits
+  
   // More message types here
   
   /**
