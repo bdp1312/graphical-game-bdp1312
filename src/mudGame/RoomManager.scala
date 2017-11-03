@@ -26,6 +26,8 @@ class RoomManager extends Actor {
     case ChangePlayerLocation(room) =>
       val newRoom = room
       sender ! Player.EnterRoom(newRoom)
+    case StartPlayer =>
+      sender ! Player.EnterRoom(rooms("The Inn #0"))
       
       // player ! EnterRoom(rooms(startRoom))
     case m =>
@@ -36,5 +38,6 @@ class RoomManager extends Actor {
 object RoomManager {
   case class SendPlayerRoom(player: ActorRef, place: String)
   case class ChangePlayerLocation(room: ActorRef)
+  case class StartPlayer(newPlayer: ActorRef)
   case class TeleportPlayer(player: ActorRef, roomKey: String)
 }

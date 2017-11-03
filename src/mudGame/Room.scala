@@ -74,7 +74,7 @@ class Room(
       else sender ! Player.Print("There is nothing here.")
     case PrintExits =>
       val directionalExits = Map(directions -> exitNames)
-      directionalExits.filter((t) => t._2 != "-1")
+      directionalExits.filter((t) => t._2.contains("-1"))
       for (tup <- directionalExits) sender ! Player.Print(s"${tup._1}: ${tup._2}")
       
           
@@ -136,10 +136,13 @@ object Room {
    */
   def apply(n: xml.Node): (String, () => Room) = {
     val keyword = (n \ "@keyword").text.trim
+    println("making" + keyword)
     val name = (n \ "@name").text.trim
     val desc = (n \ "desc").text.trim
     val items = (n \ "item").map(Item.apply).toList
     val exits = (n \ "exits").text.split(",").map(_.trim)
     (keyword, () => new Room(keyword, name, desc, items, exits))
+    
+   
   }
 }  

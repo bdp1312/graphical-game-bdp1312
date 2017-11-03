@@ -7,6 +7,9 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 import scala.concurrent.duration._
 import scala.concurrent.Future
+import java.io.PrintStream
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 
 object Main extends App {
@@ -16,9 +19,17 @@ object Main extends App {
   
   val roomManager = system.actorOf(Props[PlayerManager], "rm")
   val playerManager = system.actorOf(Props[RoomManager], "pm")
+  
+   playerManager ! PlayerManager.RoomManager(roomManager) 
+  
   import system.dispatcher
   
   println("Schedual event")
   system.scheduler.schedule(0.seconds, 0.1.seconds, playerManager, PlayerManager.CheckForInput)
-  PlayerManager.makePlayer
+  
+  println("Enter your name.")
+  val playerName = readLine()
+  var out = new PrintStream(System.out)
+  var in = new BufferedReader(new InputStreamReader(System.in))
+  PlayerManager.NewPlayer(playerName, out, in)
 }

@@ -1,26 +1,34 @@
 package mudGame
 
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.PrintStream
+
 import akka.actor.Actor
 import akka.actor.ActorRef
-import java.io.PrintStream
-import java.io.BufferedReader
 
 class Player(  
     val name: String,
+    var out: PrintStream,
+    var in: BufferedReader
+
     //private var health: Double,
-    private var inventory: List[Item],
-    private var loc: ActorRef,
-    out: PrintStream,
-    in: BufferedReader) extends Actor { //change to an actor ref
+    
+    ) extends Actor { 
+  override def  preStart = {
+    println(s"Player $name added.")
+    PlayerManager.StartNewPlayer(self)
+    
+  }
   
-  println(s"Player $name added.")
+  private var inventory: List[Item] = null
+  private var loc: ActorRef = null
   private var actionChoice = -1; // replace with queue of tuple (calling method, direction arguement)
   private var _stillHere = true
-  
-  def stillHere = _stillHere
+def stillHere = _stillHere
   import Player._
   def receive = {
-    case CheckForInput =>
+    case CheckForInput =>     
       if(in.ready()){
         val msg = in.readLine()
         command(msg.toString())        
@@ -45,8 +53,8 @@ class Player(
     case Print(string) => out.println(string)
      
     case PlaceValue(room) =>
-      if(actionChoice == 0) sender ! RoomManager.ChangePlayerLocation(room)
-      if(actionChoice == 1) room ! Room.PrintDesc 
+      /*if(actionChoice == 0)*/ sender ! RoomManager.ChangePlayerLocation(room)
+     // if(actionChoice == 1) room ! Room.PrintDesc 
   
     
     case m =>
@@ -244,4 +252,9 @@ object Player {
   case class Print(string: String)
   case class CheckMove(exitVal: String)
   case class PlaceValue(room: ActorRef)
+  
+  /**
+   * apply method for player
+   */
+
 }

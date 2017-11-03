@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Level>
-	<Room keyword = "The Inn #0" name = "The Inn"> 
+	<Room keyword = "TheInn0" name = "The Inn"> 
 	    <desc>This is a place where you can rent a room to sleep.</desc>
 		<item name = "Sword" desc = "A sharp pointy thing."></item>
 		<item name = "Chair" desc = "You can sit on this."></item>
 		<item name = "Mug" desc = "You drink form this."></item>
 		<exits>-1, -1,  The Harbor #1, -1, -1, -1</exits> 	 
 	</Room>
-	<Room keyword = "The Harbor #1" name = "The Harbor"> 
+	<Room keyword = "TheHarbor1" name = "The Harbor"> 
 		<desc>You smell the sea air"</desc>
 		<exits>-1, -1, -1, The Inn #0, The Shed #2, -1</exits>
 	</Room>
-	<Room keword = "The Shed #2" name = "The Shed"> 
+	<Room keword = "TheShed2" name = "The Shed"> 
 		<desc>You can store things here.</desc>
 		<item name = "Shovel" desc = "Digs ditches."></item>
 		<exits>-1, -1, -1, -1, -1, The Harbor #1</exits>
