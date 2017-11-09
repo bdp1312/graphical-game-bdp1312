@@ -13,7 +13,8 @@ import java.io.InputStreamReader
 
 
 object Main extends App {
-  println("My Mud Game")
+  println("My Mud Game")//if you can read this than git is working fine
+ 
   
   val system = ActorSystem("MudSystem")
   
