@@ -82,6 +82,7 @@ class Room(
      * error message 
      */
     case m =>
+      println(sender)
       println("Oops! Bad message to room: "+ m)
   }
 } 

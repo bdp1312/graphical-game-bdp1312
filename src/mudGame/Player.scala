@@ -28,7 +28,7 @@ class Player(
 def stillHere = _stillHere
   import Player._
   def receive = {
-    case CheckForInput =>     
+    case CheckForInput =>   
       if(in.ready()){
         val msg = in.readLine()
         command(msg.toString())        
@@ -58,7 +58,7 @@ def stillHere = _stillHere
   
     
     case m =>
-      println("Oops! Bad message to room: "+ m)  }
+      println("Oops! Bad message to:" + self.toString() + m)  }
   
   def getItem(itemName: String): Unit = {
 

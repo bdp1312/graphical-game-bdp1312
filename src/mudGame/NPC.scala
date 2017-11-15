@@ -1,0 +1,5 @@
+package mudGame
+
+class NPC {
+  
+}

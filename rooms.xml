@@ -11,7 +11,7 @@
 		<desc>You smell the sea air"</desc>
 		<exits>-1, -1, -1, The Inn #0, The Shed #2, -1</exits>
 	</Room>
-	<Room keword = "TheShed2" name = "The Shed"> 
+	<Room keyword = "TheShed2" name = "The Shed"> 
 		<desc>You can store things here.</desc>
 		<item name = "Shovel" desc = "Digs ditches."></item>
 		<exits>-1, -1, -1, -1, -1, The Harbor #1</exits>

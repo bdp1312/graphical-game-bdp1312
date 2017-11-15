@@ -1,15 +1,17 @@
 
 package mudGame
 
-import io.StdIn._
-import akka.actor.Actor
-import akka.actor.ActorSystem
-import akka.actor.Props
-import scala.concurrent.duration._
-import scala.concurrent.Future
-import java.io.PrintStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.io.PrintStream
+
+
+import scala.concurrent.Future
+import scala.concurrent.duration.DurationDouble
+import scala.concurrent.duration.DurationInt
+
+import akka.actor.ActorSystem
+import akka.actor.Props
 
 
 object Main extends App {
@@ -18,8 +20,8 @@ object Main extends App {
   
   val system = ActorSystem("MudSystem")
   
-  val roomManager = system.actorOf(Props[PlayerManager], "rm")
-  val playerManager = system.actorOf(Props[RoomManager], "pm")
+  val roomManager = system.actorOf(Props[RoomManager], "rm")
+  val playerManager = system.actorOf(Props[PlayerManager], "pm")
   
    playerManager ! PlayerManager.RoomManager(roomManager) 
   
@@ -29,8 +31,15 @@ object Main extends App {
   system.scheduler.schedule(0.seconds, 0.1.seconds, playerManager, PlayerManager.CheckForInput)
   
   println("Enter your name.")
-  val playerName = readLine()
+ // val playerName = readLine()
   var out = new PrintStream(System.out)
   var in = new BufferedReader(new InputStreamReader(System.in))
-  PlayerManager.NewPlayer(playerName, out, in)
+  println("enter your name")
+  Future {
+    val playerName = in.readLine()
+    playerManager ! PlayerManager.NewPlayer(playerName, out, in) 
+    println("end of main")
+  }
+ 
+  
 }
