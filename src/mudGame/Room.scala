@@ -66,6 +66,7 @@ class Room(
     case DropPlayer(player) =>
       playersInRoom -= player
     case GetExit(direction) =>
+      println("GetExit")
       val player =  sender
       val place = exitNames(direction)
       if( place != "-1"){

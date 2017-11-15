@@ -7,6 +7,7 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.Props
 
+import RoomManager._
 
 
 class PlayerManager extends Actor {
@@ -18,7 +19,8 @@ class PlayerManager extends Actor {
       println("NewPlayer")
       val lname = name.filter(_.isLetterOrDigit)
       if(context.child(lname).isEmpty){
-        context.actorOf(Props(new Player(name/*, sock*/, ps, br)), lname)
+        val NP = context.actorOf(Props(new Player(name/*, sock*/, ps, br)), lname)
+        Main.roomManager ! SendPlayerRoom(NP, "TheInn0")  
       }else {
         ps.println("This name is taken.")
         //sock.close()
@@ -28,8 +30,8 @@ class PlayerManager extends Actor {
       context.children.foreach(_ ! Player.Print(msg))
     case CheckForInput =>
       context.children.foreach(_ ! Player.CheckForInput)
-    case StartNewPlayer(newPlayer) =>
-       rm ! StartPlayer(newPlayer)
+//    case StartNewPlayer(newPlayer) =>
+//       main.RoomManager ! 
     case RoomManager(roomManager) =>
        rm = roomManager
   }

@@ -222,8 +222,11 @@ def stillHere = _stillHere
   * calls Item print function for each Item in player inventory
   */
  def listInventory(): Unit = { 
-   for (i <- 0 until inventory.length) {
-     out.println(s"${inventory(0).name}: ${inventory(0).effect}")
+   if (inventory == null) out.println("inventory is empty")
+   else{
+     for (i <- 0 until inventory.length) {
+       out.println(s"${inventory(0).name}: ${inventory(0).effect}")
+     }
    }
  } 
 
