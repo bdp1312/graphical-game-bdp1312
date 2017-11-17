@@ -16,7 +16,7 @@ class Item (
 object Item {
   def apply(n: xml.Node): Item = {
     val name = (n \ "@name").text.trim
-    val desc = (n \ "desc").text.trim
-    new Item(name, desc)
+    val desc = (n \ "@desc").text.trim
+    return new Item(name, desc)
   }
 }

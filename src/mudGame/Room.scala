@@ -3,7 +3,7 @@ package mudGame
 import akka.actor.Actor
 import akka.actor.ActorRef
 import collection.immutable.Map
-import collection.immutable.Map
+
 
 class Room(
     //val keyword: String,
@@ -26,7 +26,7 @@ class Room(
   
   private var exits: Array[Option[ActorRef]] = Array.empty
   
-  import Room._
+ import Room._
   
   /**
    * Takes actor messages 
@@ -36,21 +36,24 @@ class Room(
       exits = exitNames.map(rooms.get)
     
     case GetItem(itemName: String) =>
-      println(itemName)
+      println(loot.length)
+      println(loot.map(_.name).mkString("\n"))
+      println("itemName: " + itemName)
       if (loot.isEmpty) {
         sender ! Player.NoSuchItem
       } else {
         for (i <- 0 until loot.length) {
-          if (itemName == loot(i).name){
+          println(i)
+          if (itemName == loot(i).name.toString()){
+            println("Found " + loot(i).name.toString())
             val prize = loot(i)
             val newLoot = loot.take(i) ++ loot.drop(i+1)
-          _loot = newLoot
+            _loot = newLoot
             sender ! Player.AddItem(prize)
             sender ! Player.Print(s"${prize.name}: ${prize.effect}")
           }
-          if (loot(loot.length).name != itemName)
-            sender ! Player.NoSuchItem
-          }
+        }
+        if (loot(loot.length - 1).name != itemName) sender ! Player.NoSuchItem  
       }
     
     case DropItem(item) =>
@@ -58,11 +61,14 @@ class Room(
       sender ! Player.RemoveItem(item)
     
     case PrintDesc =>
-      val description = s"$name, $desc\n loot.foreach(_.name\n)"
+      val description = s"$name, $desc\n${loot.map(_.name).mkString("\n")}"
       sender ! Player.Print(description)
     
     case AddPlayer(player) =>
       playersInRoom += player
+      val description = s"$name, $desc\n${loot.map(_.name).mkString("\n")}"
+      player ! Player.Print(description)
+      
     case DropPlayer(player) =>
       playersInRoom -= player
     case GetExit(direction) =>
@@ -74,10 +80,9 @@ class Room(
       }
       else sender ! Player.Print("There is nothing here.")
     case PrintExits =>
-      val directionalExits = Map(directions -> exitNames)
-      directionalExits.filter((t) => t._2.contains("-1"))
-      for (tup <- directionalExits) sender ! Player.Print(s"${tup._1}: ${tup._2}")
-      
+      for(i <- 0 until exitNames.length){
+        if (exitNames(i) != "-1") sender ! Player.Print((directions(i) + ": " + exitNames(i)))
+      }
           
     /**
      * error message 

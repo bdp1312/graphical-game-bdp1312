@@ -33,9 +33,10 @@ def stillHere = _stillHere
         val msg = in.readLine()
         command(msg.toString())        
       }
-    case AddItem(prize: Item) => 
+    case AddItem(prize: Item) =>
+      println(prize.name)
       prize :: inventory
-      println(s"${prize.name} added.")
+      out.println(s"${prize.name} added.")
     case RemoveItem(item) => 
       for(i <- 0 until inventory.length){
         if(inventory(i) == item){
@@ -61,7 +62,7 @@ def stillHere = _stillHere
       println("Oops! Bad message to:" + self.toString() + m)  }
   
   def getItem(itemName: String): Unit = {
-
+    loc ! Room.GetItem(itemName)
   }
 
   /**
@@ -94,7 +95,7 @@ def stillHere = _stillHere
     if (input.length == 1){
       input = Array( comm, " ", " ")
     }
-    input.foreach(println)
+    //input.foreach(println)
     if (input(0).contains("help")) {
       println("Controls:")
     }

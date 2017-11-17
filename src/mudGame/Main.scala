@@ -37,6 +37,9 @@ object Main extends App {
   println("enter your name")
   Future {
     val playerName = in.readLine()
+    while(playerName == ""){
+      val playerName = in.readLine()
+    }
     playerManager ! PlayerManager.NewPlayer(playerName, out, in) 
     println("end of main")
   }

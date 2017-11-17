@@ -23,6 +23,7 @@ class RoomManager extends Actor {
     case SendPlayerRoom(player, place) =>
       val room = rooms(place)
       player ! Player.PlaceValue(room)
+      room ! Room.AddPlayer(player)
     case ChangePlayerLocation(room) =>
       val newRoom = room
       sender ! Player.EnterRoom(newRoom)
