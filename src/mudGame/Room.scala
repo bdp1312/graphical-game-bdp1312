@@ -10,12 +10,12 @@ class Room(
     val keyword: String,
     val name: String,
     val desc: String,
-    private var _loot: List [Item], //change to Set type
+    private var loot: MDLList [Item], 
     private val exitNames: Array [String]) extends Actor {
   
   private var playersInRoom = collection.mutable.Buffer[ActorRef]()
   
-  def loot = _loot
+  
   
   /**
    * Prints Room Description
@@ -37,28 +37,30 @@ class Room(
     
     case GetItem(itemName: String) =>
       println(loot.length)
-      println(loot.map(_.name).mkString("\n"))
-      println("itemName: " + itemName)
-      if (loot.isEmpty) {
+      //println(loot.map(_.name).mkString("\n"))
+      //println("itemName: " + itemName)
+      if (loot.length == 0) {
         sender ! Player.NoSuchItem
-      } else {
+      } else {     
+        var found = false
         for (i <- 0 until loot.length) {
-          println(i)
-          if (itemName == loot(i).name.toString()){
-            println("Found " + loot(i).name.toString())
-            val prize = loot(i)
-            val newLoot = loot.take(i) ++ loot.drop(i+1)
-            _loot = newLoot
-            sender ! Player.AddItem(prize)
-            sender ! Player.Print(s"${prize.name}: ${prize.effect}")
+          while(found == false){
+            println(i)
+            if (itemName == loot(i).name.toString()){
+              println("Found " + loot(i).name.toString())
+              found = true
+              val prize = loot(i)
+              loot.remove(i)
+              sender ! Player.AddItem(prize)
+              //sender ! Player.Print(s"${prize.name}: ${prize.effect}")
+            }
           }
         }
-        if (loot(loot.length - 1).name != itemName) sender ! Player.NoSuchItem  
+        if (found == false) sender ! Player.NoSuchItem  
       }
     
     case DropItem(item) =>
-      item :: _loot
-      sender ! Player.RemoveItem(item)
+      loot.insert(loot.length, item)
     
     case PrintDesc =>
       val description = s"$name, $desc\n${loot.map(_.name).mkString("\n")}"

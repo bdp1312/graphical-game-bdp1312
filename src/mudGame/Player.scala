@@ -7,26 +7,27 @@ import java.io.PrintStream
 import akka.actor.Actor
 import akka.actor.ActorRef
 
+
 class Player(  
     val name: String,
     var out: PrintStream,
-    var in: BufferedReader
+    var in: BufferedReader,
+    private var loc: ActorRef = null,
+    private var inventory: MDLList[Item] = null
 
     //private var health: Double,
     
     ) extends Actor { 
-  override def  preStart = {
-    println(s"Player $name added.")
-    PlayerManager.StartNewPlayer(self)
-    
-  }
   
-  private var inventory: List[Item] = null
-  private var loc: ActorRef = null
-  private var actionChoice = -1; // replace with queue of tuple (calling method, direction arguement)
+//  override def  preStart = {
+//    println(s"Player $name added.")
+//    
+//  }
+  
+  
   private var _stillHere = true
-def stillHere = _stillHere
-  import Player._
+  def stillHere = _stillHere
+ import Player._
   def receive = {
     case CheckForInput =>   
       if(in.ready()){
@@ -34,14 +35,17 @@ def stillHere = _stillHere
         command(msg.toString())        
       }
     case AddItem(prize: Item) =>
+      if (prize == null){
+        println("Warning! Player.prize == null")
+      }
       println(prize.name)
-      prize :: inventory
+      inventory.insert(inventory.length, prize)
       out.println(s"${prize.name} added.")
     case RemoveItem(item) => 
-      for(i <- 0 until inventory.length){
-        if(inventory(i) == item){
-          val newInventory = inventory.take(i) ++ inventory.drop(i+1)
-        }  
+      val i = inventory.find(item)
+      if (i == -1) out.println(item.name + "not in inventory")
+      else{
+        inventory.remove(i)
       }
     case NoSuchItem =>
         out.println("No such Item")
@@ -97,7 +101,8 @@ def stillHere = _stillHere
     }
     //input.foreach(println)
     if (input(0).contains("help")) {
-      println("Controls:")
+      println("Controls:\nup, u = move up\n down, d = move down\n east, e = move east\n west, w = move west" +
+          "north, n = move north\n south, s = move south")
     }
     else if (input(0).contains("up") || input(0) == ("u")){
       move(0)
@@ -132,6 +137,9 @@ def stillHere = _stillHere
         }
         else if (input(1).contains("around") || input(1).contains("a") || input(0).contains("la")){
           loc ! Room.PrintExits
+        }
+        else{
+          invalidComm()
         }
         
 //        else if (input(1).contains("up") || input(1) == ("u") || input(0) == ("lu")) {
@@ -174,7 +182,6 @@ def stillHere = _stillHere
  * move
  */
   def move(direction: Int): Unit = {
-    actionChoice = 0
     loc ! Room.GetExit(direction) 
   } 
   /**
@@ -183,7 +190,6 @@ def stillHere = _stillHere
    * Sends directional argument to loc
    */
   def lookOut(direction: Int): Unit = {
-    actionChoice = 1
     loc ! Room.GetExit(direction) 
   }  
       
@@ -257,8 +263,6 @@ object Player {
   case class CheckMove(exitVal: String)
   case class PlaceValue(room: ActorRef)
   
-  /**
-   * apply method for player
-   */
+ 
 
 }

@@ -51,10 +51,6 @@ object PlayerManager {
    */
   case object CheckForInput
   /**
-   * sets new player name, puts player into the Inn
-   */
-  case class StartNewPlayer(newPlayer: ActorRef)
-  /**
    * gets roomManager actor ref
    */
   case class RoomManager(roomManager: ActorRef)

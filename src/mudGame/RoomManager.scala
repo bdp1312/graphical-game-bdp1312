@@ -20,6 +20,8 @@ class RoomManager extends Actor {
   import RoomManager._
   
   def receive = {
+    case CheckRoomStatus =>
+      println(" ")
     case SendPlayerRoom(player, place) =>
       val room = rooms(place)
       player ! Player.PlaceValue(room)
@@ -37,6 +39,7 @@ class RoomManager extends Actor {
 }
 
 object RoomManager {
+  case object CheckRoomStatus
   case class SendPlayerRoom(player: ActorRef, place: String)
   case class ChangePlayerLocation(room: ActorRef)
   case class StartPlayer(newPlayer: ActorRef)

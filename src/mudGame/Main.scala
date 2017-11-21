@@ -23,7 +23,6 @@ object Main extends App {
   val roomManager = system.actorOf(Props[RoomManager], "rm")
   val playerManager = system.actorOf(Props[PlayerManager], "pm")
   
-   playerManager ! PlayerManager.RoomManager(roomManager) 
   
   import system.dispatcher
   
