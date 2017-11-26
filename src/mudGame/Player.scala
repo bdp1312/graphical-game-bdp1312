@@ -50,15 +50,19 @@ class Player(
     case NoSuchItem =>
         out.println("No such Item")
                
-    case EnterRoom(room) => loc = room
+    case EnterRoom(room) => 
+      println("Player.EnterRoom")
+      loc = room
       //Set loc to room arguement
     /**
      * prints message 
      */
-    case Print(string) => out.println(string)
+    case Print(string) => out.println("Print\n" + string)
      
     case PlaceValue(room) =>
-      /*if(actionChoice == 0)*/ sender ! RoomManager.ChangePlayerLocation(room)
+      println("Player.PlaceValue")
+      /*if(actionChoice == 0)*/ 
+      sender ! RoomManager.ChangePlayerLocation(room)
      // if(actionChoice == 1) room ! Room.PrintDesc 
   
     
