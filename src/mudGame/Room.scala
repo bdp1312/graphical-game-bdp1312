@@ -67,7 +67,7 @@ class Room(
       sender ! Player.Print(description)
     
     case AddPlayer(player) =>
-      player ! Player.Print("Room.AddPlayer" + self + player)
+      println("Room.AddPlayer" + self + player)
       playersInRoom += player
       val description = name + ", " + desc + "\n" + loot.map(_.name).mkString("\n")
       println(description)
