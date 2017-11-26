@@ -31,16 +31,15 @@ object Main extends App {
   
   println("Enter your name.")
  // val playerName = readLine()
-  var out = new PrintStream(System.out)
+  var out = System.out //new PrintStream(System.out)
   var in = new BufferedReader(new InputStreamReader(System.in))
-  println("enter your name")
+  out.println("enter your name")
   Future {
     val playerName = in.readLine()
     while(playerName == ""){
       val playerName = in.readLine()
     }
     playerManager ! PlayerManager.NewPlayer(playerName, out, in) 
-    println("end of main")
   }
  
   

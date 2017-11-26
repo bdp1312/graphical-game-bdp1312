@@ -37,14 +37,14 @@ class Room(
     
     case GetItem(itemName: String) =>
       println(loot.length)
-      //println(loot.map(_.name).mkString("\n"))
-      //println("itemName: " + itemName)
+      println(loot.map(_.name).mkString("\n"))
+      println("itemName: " + itemName)
       if (loot.length == 0) {
         sender ! Player.NoSuchItem
       } else {     
         var found = false
         for (i <- 0 until loot.length) {
-          while(found == false){
+          if(found == false){
             println(i)
             if (itemName == loot(i).name.toString()){
               println("Found " + loot(i).name.toString())
@@ -52,7 +52,7 @@ class Room(
               val prize = loot(i)
               loot.remove(i)
               sender ! Player.AddItem(prize)
-              //sender ! Player.Print(s"${prize.name}: ${prize.effect}")
+              sender ! Player.Print(s"${prize.name}: ${prize.effect}")
             }
           }
         }
@@ -67,9 +67,12 @@ class Room(
       sender ! Player.Print(description)
     
     case AddPlayer(player) =>
+      println("Room.AddPlayer" + player)
       playersInRoom += player
-      val description = s"$name, $desc\n${loot.map(_.name).mkString("\n")}"
-      player ! Player.Print(description)
+      val description = name + ", " + desc + "\n" + loot.map(_.name).mkString("\n")
+      println(description)
+      player ! Player.Print("Description" + description)
+      player ! Player.Print("Test")
       
     case DropPlayer(player) =>
       playersInRoom -= player
@@ -148,7 +151,9 @@ object Room {
     println("making" + keyword)
     val name = (n \ "@name").text.trim
     val desc = (n \ "desc").text.trim
-    val items = (n \ "item").map(Item.apply).toList
+    val itemsList = (n \ "item").map(Item.apply).toList
+    val items = new MDLList [Item]
+    for (i <- itemsList) items.add(i)
     val exits = (n \ "exits").text.split(",").map(_.trim)
     (keyword, () => new Room(keyword, name, desc, items, exits))
     

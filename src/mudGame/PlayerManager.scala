@@ -16,7 +16,7 @@ class PlayerManager extends Actor {
   import PlayerManager._
   def receive = {
     case NewPlayer(name/*, sock*/, ps, br) =>
-      println("NewPlayer")
+      println("PlayerManager.NewPlayer")
       val lname = name.filter(_.isLetterOrDigit)
       if(context.child(lname).isEmpty){
         val NP = context.actorOf(Props(new Player(name/*, sock*/, ps, br)), lname)

@@ -23,10 +23,13 @@ class RoomManager extends Actor {
     case CheckRoomStatus =>
       println(" ")
     case SendPlayerRoom(player, place) =>
+      println("RoomManager.SendPlayerRoom" + player + place)
       val room = rooms(place)
-      player ! Player.PlaceValue(room)
+      println(room)
+      player ! Player.EnterRoom(room)
       room ! Room.AddPlayer(player)
     case ChangePlayerLocation(room) =>
+      println("ChangePlayerLocation")
       val newRoom = room
       sender ! Player.EnterRoom(newRoom)
 //    case StartPlayer(newPlayer) =>
