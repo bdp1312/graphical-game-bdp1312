@@ -55,8 +55,8 @@ class MDLList [A] {
     }
     return -1
   }
-  def map(f: (A) => B): MDLList[B] = {
-    
-  }
+//  def map(f: (A) => B): MDLList[B] = {
+//    
+//  }
 
 }
