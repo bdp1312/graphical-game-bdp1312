@@ -22,7 +22,7 @@ class Room(
    */
 
 
-  println("Made room: "+name)
+  println("Made room: "+name + desc +"\n" + loot.map(_.name).mkString("\n"))
   
   private var exits: Array[Option[ActorRef]] = Array.empty
   
@@ -67,7 +67,7 @@ class Room(
       sender ! Player.Print(description)
     
     case AddPlayer(player) =>
-      println("Room.AddPlayer" + player)
+      player ! Player.Print("Room.AddPlayer" + self + player)
       playersInRoom += player
       val description = name + ", " + desc + "\n" + loot.map(_.name).mkString("\n")
       println(description)
