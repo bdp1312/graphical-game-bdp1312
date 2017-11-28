@@ -15,14 +15,10 @@ class Room(
   
   private var playersInRoom = collection.mutable.Buffer[ActorRef]()
   
-  
-  
-  /**
-   * Prints Room Description
-   */
-
-
-  println("Made room: "+name + desc +"\n" + loot.map(_.name).mkString("\n"))
+  override def preStart{
+    println("Made room: "+name + desc +"\n" + loot.map(_.name).mkString("\n"))
+  }
+    
   
   private var exits: Array[Option[ActorRef]] = Array.empty
   
