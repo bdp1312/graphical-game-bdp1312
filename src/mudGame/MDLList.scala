@@ -64,7 +64,7 @@ class MDLList [A] {
     return -1
   }
   
-  def map[B](f: (A) => B): MDLList[B] = {
+  def map[B](f: (A) => B): MDLList[B] = { 
     val result = new MDLList[B]
     var rover = end.next
     while (rover != end){
