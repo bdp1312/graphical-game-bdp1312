@@ -78,6 +78,7 @@ class MDLList [A] {
     var rover = end.next
     while (rover != end){
       ret += rover.value + sep
+      rover = rover.next     
     }
     ret
   }

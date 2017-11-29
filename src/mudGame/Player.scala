@@ -13,7 +13,7 @@ class Player(
     var out: PrintStream,
     var in: BufferedReader,
     private var loc: ActorRef = null,
-    private var inventory: MDLList[Item] = null
+    
 
     //private var health: Double,
     
@@ -24,7 +24,7 @@ class Player(
 //    
 //  }
   
-  
+  private var inventory = new MDLList[Item]()
   private var _stillHere = true
   def stillHere = _stillHere
  import Player._
@@ -53,7 +53,6 @@ class Player(
     case EnterRoom(room) => 
       println("Player.EnterRoom")
       loc = room
-      //Set loc to room arguement
     /**
      * prints message 
      */
@@ -72,12 +71,34 @@ class Player(
   def getItem(itemName: String): Unit = {
     loc ! Room.GetItem(itemName)
   }
+  
+  def dropItem(itemName: String): Unit = {
+    if (inventory.length == 0) {
+        println("Error, your inventory is empty")
+      } else {     
+        var found = false
+        for (i <- 0 until inventory.length) {
+          if(found == false){
+            println(i)
+            if (itemName == inventory(i).name.toString()){
+              println("Found " + inventory(i).name.toString())
+              found = true
+              val prize = inventory(i)
+              inventory.remove(i)
+              loc ! Room.DropItem(prize)
+              sender ! Player.Print(s"${prize.name}: ${prize.effect}")
+            }
+          }
+        }
+        if (found == false) println("") 
+      }    
+  }
 
   /**
    * takes input from comm
    * sends message
    */
-  def dropItem(itemName: String): Unit = {
+//  def dropItem(itemName: String): Unit = {
 //    val position = findItem(itemName, inventory)
 //    println(position)
 //    if (position != -1 && position <= inventory.length) {
@@ -92,7 +113,7 @@ class Player(
 //    }else {
 //      println(s"$itemName not found.")
 //    }    
-  }
+//  }
 
   /**
    * Takes String comm
@@ -266,7 +287,4 @@ object Player {
   case class Print(string: String)
   case class CheckMove(exitVal: String)
   case class PlaceValue(room: ActorRef)
-  
- 
-
 }

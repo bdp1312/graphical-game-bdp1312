@@ -13,6 +13,8 @@ class Room(
     private var loot: MDLList [Item], 
     private val exitNames: Array [String]) extends Actor {
   
+  println("constructor for "+keyword)
+  
   private var playersInRoom = collection.mutable.Buffer[ActorRef]()
   
   override def preStart{

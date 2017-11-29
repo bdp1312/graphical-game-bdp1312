@@ -12,7 +12,7 @@ import RoomManager._
 
 class PlayerManager extends Actor {
   var rm: ActorRef = self
-  var players = collection.mutable.Map[String, akka.actor.ActorRef]()
+//  var players = collection.mutable.Map[String, akka.actor.ActorRef]()
   import PlayerManager._
   def receive = {
     case NewPlayer(name/*, sock*/, ps, br) =>
@@ -21,8 +21,8 @@ class PlayerManager extends Actor {
       if(context.child(lname).isEmpty){
         val NP = context.actorOf(Props(new Player(name/*, sock*/, ps, br)), lname)
         Main.roomManager ! SendPlayerRoom(NP, "TheInn0")
-        val mapRef = (name, NP)
-        players += (mapRef)
+        //val mapRef = (name, NP)
+        //players += (mapRef)
       }else {
         ps.println("This name is taken.")
         //sock.close()

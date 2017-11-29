@@ -11,6 +11,7 @@ class RoomManager extends Actor {
     val xData = xml.XML.loadFile("rooms.xml") //exchange XML with current text file protocol
     (xData \ "Room").map(n => {
       val (key, builder) = Room.apply(n) 
+      println("Build "+key)
       key -> context.actorOf(Props(builder()), key)
     }).toMap
   }
@@ -27,7 +28,9 @@ class RoomManager extends Actor {
       val room = rooms(place)
       println(room)
       player ! Player.EnterRoom(room)
+      println("Sent to player")
       room ! Room.AddPlayer(player)
+      println("Sent to room")
     case ChangePlayerLocation(room) =>
       println("ChangePlayerLocation")
       val newRoom = room

@@ -34,13 +34,13 @@ object Main extends App {
   var out = System.out //new PrintStream(System.out)
   var in = new BufferedReader(new InputStreamReader(System.in))
   out.println("enter your name")
-  Future {
-    val playerName = in.readLine()
+ // Future {
+    var playerName = in.readLine()
     while(playerName == ""){
-      val playerName = in.readLine()
+      playerName = in.readLine()
     }
     playerManager ! PlayerManager.NewPlayer(playerName, out, in) 
-  }
+ // }
  
   
 }
