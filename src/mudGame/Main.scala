@@ -12,6 +12,7 @@ import scala.concurrent.duration.DurationInt
 
 import akka.actor.ActorSystem
 import akka.actor.Props
+import java.net.ServerSocket
 
 
 object Main extends App {
@@ -28,19 +29,20 @@ object Main extends App {
   
   println("Schedual event")
   system.scheduler.schedule(0.seconds, 0.1.seconds, playerManager, PlayerManager.CheckForInput)
-  
-  println("Enter your name.")
- // val playerName = readLine()
-  var out = System.out //new PrintStream(System.out)
-  var in = new BufferedReader(new InputStreamReader(System.in))
-  out.println("enter your name")
- // Future {
-    var playerName = in.readLine()
-    while(playerName == ""){
-      playerName = in.readLine()
-    }
-    playerManager ! PlayerManager.NewPlayer(playerName, out, in) 
- // }
  
-  
+  val ss = new ServerSocket(696969)
+  while(true) {
+    val sock = ss.accept()
+    var out = new PrintStream(sock.getOutputStream)
+    var in = new BufferedReader(new InputStreamReader(sock.getInputStream))
+    out.println("enter your name")
+    Future {
+      var playerName = in.readLine()
+//      while(playerName == ""){
+//        playerName = in.readLine()
+//      }
+      playerManager ! PlayerManager.NewPlayer(playerName, sock, out, in) 
+    }
+ 
+  }
 }

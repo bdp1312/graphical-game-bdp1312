@@ -8,6 +8,7 @@ import akka.actor.ActorRef
 import akka.actor.Props
 
 import RoomManager._
+import java.net.Socket
 
 
 class PlayerManager extends Actor {
@@ -15,11 +16,11 @@ class PlayerManager extends Actor {
 //  var players = collection.mutable.Map[String, akka.actor.ActorRef]()
   import PlayerManager._
   def receive = {
-    case NewPlayer(name/*, sock*/, ps, br) =>
+    case NewPlayer(name, sock, ps, br) =>
       println("PlayerManager.NewPlayer")
       val lname = name.filter(_.isLetterOrDigit)
       if(context.child(lname).isEmpty){
-        val NP = context.actorOf(Props(new Player(name/*, sock*/, ps, br)), lname)
+        val NP = context.actorOf(Props(new Player(name, ps, br, sock)), lname)
         Main.roomManager ! SendPlayerRoom(NP, "TheInn0")
         //val mapRef = (name, NP)
         //players += (mapRef)
@@ -43,7 +44,7 @@ object PlayerManager {
   /**
    * Creates new instance of player
    */
-  case class NewPlayer(name: String/*, sock: Socket*/, ps: PrintStream, br: BufferedReader)
+  case class NewPlayer(name: String, sock: Socket, ps: PrintStream, br: BufferedReader)
   /**
    * sends message to every player
    */

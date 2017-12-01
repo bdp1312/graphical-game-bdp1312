@@ -6,12 +6,14 @@ import java.io.PrintStream
 
 import akka.actor.Actor
 import akka.actor.ActorRef
+import java.net.Socket
 
 
 class Player(  
     val name: String,
     var out: PrintStream,
     var in: BufferedReader,
+    var sock: Socket,
     private var loc: ActorRef = null,
     
 
