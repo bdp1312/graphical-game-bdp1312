@@ -13,11 +13,7 @@ class Player(
     val name: String,
     var out: PrintStream,
     var in: BufferedReader,
-    var sock: Socket,
-    private var loc: ActorRef = null,
-    
-
-    //private var health: Double,
+    var sock: Socket    
     
     ) extends Actor { 
   
@@ -27,8 +23,10 @@ class Player(
 //  }
   
   private var inventory = new MDLList[Item]()
-  private var _stillHere = true
-  def stillHere = _stillHere
+  private var loc: ActorRef = null
+  private var health: Double = 100
+  private var stillHere: Boolean = true
+  
  import Player._
   def receive = {
     case CheckForInput =>   
@@ -41,7 +39,7 @@ class Player(
         println("Warning! Player.prize == null")
       }
       println(prize.name)
-      inventory.insert(inventory.length, prize)
+      inventory.add(prize)
       out.println(s"${prize.name} added.")
     case RemoveItem(item) => 
       val i = inventory.find(item)
@@ -74,6 +72,11 @@ class Player(
     loc ! Room.GetItem(itemName)
   }
   
+  /**
+   * Take Arguement from comm
+   * find item in inventory
+   * if item is found tells room to add item
+   */
   def dropItem(itemName: String): Unit = {
     if (inventory.length == 0) {
         println("Error, your inventory is empty")
@@ -88,7 +91,7 @@ class Player(
               val prize = inventory(i)
               inventory.remove(i)
               loc ! Room.DropItem(prize)
-              sender ! Player.Print(s"${prize.name}: ${prize.effect}")
+              sender ! Player.Print(s"${prize.name}: ${prize.desc}")
             }
           }
         }
@@ -96,26 +99,7 @@ class Player(
       }    
   }
 
-  /**
-   * takes input from comm
-   * sends message
-   */
-//  def dropItem(itemName: String): Unit = {
-//    val position = findItem(itemName, inventory)
-//    println(position)
-//    if (position != -1 && position <= inventory.length) {
-//      val junk = inventory(position)
-//      if (loc.addItem(junk)){
-//        val newInventory = inventory.take(position) ++ inventory.drop(position+1)
-//        inventory = newInventory
-//        println(s"$junk dropped.")
-//      } else {
-//        println("You cannot drop this item here!")
-//      }
-//    }else {
-//      println(s"$itemName not found.")
-//    }    
-//  }
+
 
   /**
    * Takes String comm
@@ -168,34 +152,20 @@ class Player(
         else{
           invalidComm()
         }
-        
-//        else if (input(1).contains("up") || input(1) == ("u") || input(0) == ("lu")) {
-//          lookOut(0)
-//        }
-//         else if (input(1).contains("down") || input(1) == ("d") || input(0) == ("ld")) {
-//          lookOut(1)
-//        }        
-//        else if (input(1).contains("east") || input(1) == ("e") || input(0) == ("le")) {
-//          lookOut(2)
-//        }
-//        else if (input(1).contains("west") || input(1) == ("w") || input(0) == ("lw")) {
-//          lookOut(3)
-//        }
-//        else if (input(1).contains("north") || input(1) == ("n") || input(0) == ("ln")) {
-//          lookOut(4)
-//        }
-//        else if (input(1).contains("south") || input(1) == ("s") || input(0) == ("ls")) {
-//          lookOut(5)
-//        }
-//        
-//        else {
-//          invalidComm()
-//        }
     }
     else if (input(0).contains("exit")) {
       exit()    
     }
-    else{
+    
+    else if (input(0).contains("say")) {
+      loc ! Room.SendMessage(input(1))
+    }
+    
+    else if (input(0).contains("tell")) {
+      context.parent ! PlayerManager.SendMessage(input(1))
+    }
+    
+    else {
       invalidComm()
     }
   }
@@ -259,7 +229,7 @@ class Player(
    if (inventory == null) out.println("inventory is empty")
    else{
      for (i <- 0 until inventory.length) {
-       out.println(s"${inventory(0).name}: ${inventory(0).effect}")
+       out.println(s"${inventory(0).name}: ${inventory(0).desc}")
      }
    }
  } 

@@ -1,5 +1,6 @@
 package mudGame
 
-class NPC {
+class NPC (
+    ) {
   
 }

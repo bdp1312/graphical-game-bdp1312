@@ -2,14 +2,15 @@ package mudGame
 
 class Item (
     val name: String,
-    //held: Boolean,
-    val effect: String //effect to be own class in future version?
+    val desc: String
+    //val damage: Int
+    //val recharge : Int
     ){
   /**
    * at this point item to only have a function to get item data
    */
   def printDesc(): Unit = {
-    println(s"$name: $effect")
+    println(s"$name: $desc")
   }
 }
 

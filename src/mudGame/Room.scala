@@ -50,7 +50,7 @@ class Room(
               val prize = loot(i)
               loot.remove(i)
               sender ! Player.AddItem(prize)
-              sender ! Player.Print(s"${prize.name}: ${prize.effect}")
+              sender ! Player.Print(s"${prize.name}: ${prize.desc}")
             }
           }
         }
@@ -58,7 +58,7 @@ class Room(
       }
     
     case DropItem(item) =>
-      loot.insert(loot.length, item)
+      loot.add(item)
     
     case PrintDesc =>
       val description = s"$name, $desc\n${loot.map(_.name).mkString("\n")}"
@@ -86,6 +86,9 @@ class Room(
       for(i <- 0 until exitNames.length){
         if (exitNames(i) != "-1") sender ! Player.Print((directions(i) + ": " + exitNames(i)))
       }
+      
+    case SendMessage(message) =>
+      playersInRoom.foreach(_ ! Player.Print(message))
           
     /**
      * error message 
@@ -138,6 +141,11 @@ object Room {
    * Room returns all exit values != -1
    */
   case object PrintExits
+  
+  /**
+   * Send message to each player in room
+   */
+  case class SendMessage(message: String)
   
   // More message types here
   
