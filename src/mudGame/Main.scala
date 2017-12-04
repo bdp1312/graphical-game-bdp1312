@@ -37,7 +37,8 @@ object Main extends App {
     var in = new BufferedReader(new InputStreamReader(sock.getInputStream))
     out.println("enter your name")
     Future {
-      var playerName = in.readLine()
+      val playerName = in.readLine()
+      println("Welcome" + playerName)
 //      while(playerName == ""){
 //        playerName = in.readLine()
 //      }
