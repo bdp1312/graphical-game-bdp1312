@@ -30,7 +30,7 @@ object Main extends App {
   println("Schedual event")
   system.scheduler.schedule(0.seconds, 0.1.seconds, playerManager, PlayerManager.CheckForInput)
  
-  val ss = new ServerSocket(696969)
+  val ss = new ServerSocket(12345)
   while(true) {
     val sock = ss.accept()
     var out = new PrintStream(sock.getOutputStream)
