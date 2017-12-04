@@ -172,7 +172,7 @@ class Player(
   
 
 	def exit(): Unit = {
-	 loc ! Room.DropPlayer(self)
+	  loc ! Room.DropPlayer(self)
 	}
 
 /**

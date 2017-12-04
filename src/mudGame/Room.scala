@@ -61,7 +61,7 @@ class Room(
       loot.add(item)
     
     case PrintDesc =>
-      val description = s"$name, $desc\n${loot.map(_.name).mkString("\n")}"
+      val description = s"$name, $desc\n ${playersInRoom} ${loot.map(_.name).mkString("\n")}"
       sender ! Player.Print(description)
     
     case AddPlayer(player) =>
