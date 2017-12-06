@@ -1,5 +1,6 @@
 package mudGame
 
+import NPCManager._
 
 import akka.actor.Actor
 import akka.actor.Props

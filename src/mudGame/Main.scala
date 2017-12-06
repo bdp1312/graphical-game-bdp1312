@@ -23,7 +23,7 @@ object Main extends App {
   
   val roomManager = system.actorOf(Props[RoomManager], "rm")
   val playerManager = system.actorOf(Props[PlayerManager], "pm")
-  
+  val npcManager = system.actorOf(Props[NPCManager], "nm")
   
   import system.dispatcher
   

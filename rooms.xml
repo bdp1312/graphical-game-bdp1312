@@ -16,4 +16,23 @@
 		<item name = "Shovel" desc = "Digs ditches."></item>
 		<exits>-1, -1, -1, -1, -1, TheHarbor1</exits>
 	</Room>
+	<Room keyword = "TheField0" name = "The Field">
+		<desc>Nothing but grass out here.</desc>
+		<item name = "Flower" desc = "A beautiful white rainlilly."></item>
+		<exits>-1, -1, TheCave1, TheInn0, -1, -1</exits> 	 
+	</Room>
+	<Room keyword = "TheCave0" name = "The Cave">
+		<desc>Dark and foreboding.</desc>
+		<item name = "Big Sharp Rock" desc = "Heavy and Sharp"></item>
+		<exits>-1, CavernDen0, -1, TheField0, -1, -1</exits> 	 
+	</Room>
+	<Room keyword = "CavernDen0" name = "Cavern Den">
+		<desc>You fell that you might be tresspassing.</desc>
+		<item name = "Gnawed Femur" desc = "Species Undetermined,"></item>
+		<item name = "Broken Sword-hilt" desc = "It must have failed some poor soul in battle."></item>
+		<NPC name = "Old Cave Troll" desc = "Big, Ugly, and Rancorous" health = "250" moveRate = "100" smart = "false">
+			<item name = "Massive Metal Crowbar" desc = "It'll crack open your head!"></item> 
+		</NPC>
+		<exits>TheCave0, -1, -1, -1, -1, -1</exits> 	 
+	</Room>
 </Level>		  

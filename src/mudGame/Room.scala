@@ -11,11 +11,13 @@ class Room(
     val name: String,
     val desc: String,
     private var loot: MDLList [Item], 
-    private val exitNames: Array [String]) extends Actor {
+    private val exitNames: Array [String]
+    ) extends Actor {
   
   println("constructor for "+keyword)
   
   private var playersInRoom = collection.mutable.Buffer[ActorRef]()
+  private var NPCsPresent = collection.mutable.Buffer[ActorRef]()
   
   override def preStart{
     println("Made room: "+name + desc +"\n" + loot.map(_.name).mkString("\n"))
@@ -160,8 +162,12 @@ object Room {
     val itemsList = (n \ "item").map(Item.apply).toList
     val items = new MDLList [Item]
     for (i <- itemsList) items.add(i)
+    val NPCs = (n \ "NPC").map(NPC.collect).toList
+    for (i <- 0 until NPCs.length){
+      Main.npcManager ! NPCManager.NewNPC(NPCs(i), keyword)
+    }
     val exits = (n \ "exits").text.split(",").map(_.trim)
-    (keyword, () => new Room(keyword, name, desc, items, exits))
+    (keyword, () => new Room(keyword, name, desc,  items, exits))
     
    
   }
