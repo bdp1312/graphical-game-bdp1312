@@ -4,6 +4,8 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintStream
 
+import scala.util.matching._
+
 import akka.actor.Actor
 import akka.actor.ActorRef
 import java.net.Socket
@@ -27,12 +29,122 @@ class Player(
   private var health: Double = 100
   private var stillHere: Boolean = true
   
+  
+  
  import Player._
+ 
+ private val say = """say (.*)""".r
+ private val tell = """tell (.*):(.*)""".r
+ private val get = """get (.*)""".r
+ private val drop = """drop (.*)""".r
+ private val exitComm = """exit(.*)""".r
+ private val lookAround =  """la( *)""".r
+ private val lookRoom = """lr( *)""".r
+ private val lookInventory = """li( *)""".r
+ private val east = """e(.*)""".r
+ private val west = """w(.*)""".r
+ private val north = """n(.*)""".r
+ private val south = """s(.*)""".r
+ private val up = """u(.*)""".r
+ private val down = """d(.*)""".r
+ private val help = """help(.*)""".r
+ 
+  def processComand(comm: String): Unit = {
+     comm match{   
+       case exitComm(_*) => exit()
+       case say(msg) => loc ! Room.SendMessage(msg)
+       case tell(playerName, msg) =>
+         val playerRef: Option[ActorRef] = context.parent ? PlayerManager.GetRef(playerName)
+         if (playerRef.
+         playerRef ! Player.Print(msg)
+       case tell(msg) =>
+       case get(itemName) =>
+       case drop(itemName) =>
+       case lookAround(_*) =>
+       case lookRoom(_*) =>
+       case lookInventory(_*) =>
+       case help(_*) => println("Controls:\nup, u = move up\n down, d = move down\n east, e = move east\n west, w = move west" +
+          "north, n = move north\n south, s = move south\n")
+       
+       case up(_*) => move(0)
+       case down(_*) => move(1)
+       case east(_*) => move(2)
+       case west(_*) => move(3)
+       case north(_*) => move(4)
+       case south(_*) => move(5)
+       case _ => invalidComm()
+     }
+  }
+  def command(comm: String): Unit = {
+    var input = comm.split(" ")
+    if (input.length == 1){
+      input = Array( comm, " ", " ")
+    }
+    //input.foreach(println)
+    if (input(0).contains("help")) {
+      println("Controls:\nup, u = move up\n down, d = move down\n east, e = move east\n west, w = move west" +
+          "north, n = move north\n south, s = move south")
+    }
+    else if (input(0).contains("up") || input(0) == ("u")){
+      move(0)
+    }
+    else if (input(0).contains("down") || input(0) == ("d")){
+      move(1)
+    }
+    else if (input(0).contains("east") || input(0) == ("e")){
+      move(2)
+    }
+    else if (input(0).contains("west") || input(0) == ("w")) {
+      move(3)
+    }
+    else if (input(0).contains("north") || input(0) == ("n")) {
+      move(4)
+    }
+    else if (input(0).contains("south") || input(0) == ("s")) {
+      move(5)
+    }
+    else if (input(0).contains("get") || input(0) == ("gi")) {
+      getItem(input(1))                             
+    }
+    else if (input(0).contains("drop") || input(0) == ("di")) {
+      dropItem(input(1))
+    }
+    else if (input(0).contains("look") || input(0).contains("l")) {
+        if (input(1).contains("inventory") || input(1).contains("inv") || input(0) == ("li")) {
+          listInventory()
+        }
+        else if (input(1).contains("room") || input(1).contains("r") || input(0) == ("lr")) {
+          loc ! Room.PrintDesc
+        }
+        else if (input(1).contains("around") || input(1).contains("a") || input(0).contains("la")){
+          loc ! Room.PrintExits
+        }
+        else{
+          invalidComm()
+        }
+    }
+    else if (input(0).contains("exit")) {
+      exit()    
+    }
+    
+    else if (input(0).contains("say")) {
+      loc ! Room.SendMessage(input(1))
+    }
+    
+    else if (input(0).contains("tell")) {
+      context.parent ! PlayerManager.SendMessage(input(1))
+    }
+    
+    else {
+      invalidComm()
+    }
+  }
+
   def receive = {
     case CheckForInput =>   
       if(in.ready()){
         val msg = in.readLine()
-        command(msg.toString())        
+        processComand(msg.toString())        
       }
     case AddItem(prize: Item) =>
       if (prize == null){
@@ -105,74 +217,11 @@ class Player(
    * Takes String comm
    * calls function corresponding to the String entered
    */
-  def command(comm: String): Unit = {
-    var input = comm.split(" ")
-    if (input.length == 1){
-      input = Array( comm, " ", " ")
-    }
-    //input.foreach(println)
-    if (input(0).contains("help")) {
-      println("Controls:\nup, u = move up\n down, d = move down\n east, e = move east\n west, w = move west" +
-          "north, n = move north\n south, s = move south")
-    }
-    else if (input(0).contains("up") || input(0) == ("u")){
-      move(0)
-    }
-    else if (input(0).contains("down") || input(0) == ("d")){
-      move(1)
-    }
-    else if (input(0).contains("east") || input(0) == ("e")){
-      move(2)
-    }
-    else if (input(0).contains("west") || input(0) == ("w")) {
-      move(3)
-    }
-    else if (input(0).contains("north") || input(0) == ("n")) {
-      move(4)
-    }
-    else if (input(0).contains("south") || input(0) == ("s")) {
-      move(5)
-    }
-    else if (input(0).contains("get") || input(0) == ("gi")) {
-      getItem(input(1))                             
-    }
-    else if (input(0).contains("drop") || input(0) == ("di")) {
-      dropItem(input(1))
-    }
-    else if (input(0).contains("look") || input(0).contains("l")) {
-        if (input(1).contains("inventory") || input(1).contains("inv") || input(0) == ("li")) {
-          listInventory()
-        }
-        else if (input(1).contains("room") || input(1).contains("r") || input(0) == ("lr")) {
-          loc ! Room.PrintDesc
-        }
-        else if (input(1).contains("around") || input(1).contains("a") || input(0).contains("la")){
-          loc ! Room.PrintExits
-        }
-        else{
-          invalidComm()
-        }
-    }
-    else if (input(0).contains("exit")) {
-      exit()    
-    }
-    
-    else if (input(0).contains("say")) {
-      loc ! Room.SendMessage(input(1))
-    }
-    
-    else if (input(0).contains("tell")) {
-      context.parent ! PlayerManager.SendMessage(input(1))
-    }
-    
-    else {
-      invalidComm()
-    }
-  }
   
 
 	def exit(): Unit = {
 	  loc ! Room.DropPlayer(self)
+	  sock.close()
 	}
 
 /**

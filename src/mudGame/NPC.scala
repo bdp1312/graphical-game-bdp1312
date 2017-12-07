@@ -22,14 +22,18 @@ class NPC (
   
   import NPC._
   def receive = {
+    case EnterRoom(room) => 
+      println("NPC.EnterRoom")
+      loc = room  
+    case m =>
+      println("Oops! Bad message to:" + self.toString() + m)  
+  }
+  
+  def smartMove: Unit = {
     ???
   }
   
-  def smartMove {
-    ???
-  }
-  
-  def dumbMove {
+  def dumbMove: Unit = {
     loc ! Room.GetExit(r.nextInt()) 
   }
 
@@ -37,6 +41,9 @@ class NPC (
 }
 
 object NPC{
+  
+  case class EnterRoom(room: ActorRef)
+  
   def collect (n: xml.Node): (List[String], MDLList[Item]) = {
     val name = (n \ "@name").text.trim
     val desc = (n \ "@desc").text.trim

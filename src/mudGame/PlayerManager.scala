@@ -13,7 +13,7 @@ import java.net.Socket
 
 class PlayerManager extends Actor {
   var rm: ActorRef = self
-//  var players = collection.mutable.Map[String, akka.actor.ActorRef]()
+  var players = collection.mutable.Map[String, akka.actor.ActorRef]()
   import PlayerManager._
   def receive = {
     case NewPlayer(name, sock, ps, br) =>
@@ -22,11 +22,11 @@ class PlayerManager extends Actor {
       if(context.child(lname).isEmpty){
         val NP = context.actorOf(Props(new Player(name, ps, br, sock)), lname)
         Main.roomManager ! SendPlayerRoom(NP, "TheInn0")
-        //val mapRef = (name, NP)
-        //players += (mapRef)
+        val mapRef = (name, NP)
+        players += (mapRef)
       }else {
         ps.println("This name is taken.")
-        //sock.close()
+        sock.close()
       }
     case SendMessage(msg) =>
       println(context.children.toString)
@@ -37,7 +37,17 @@ class PlayerManager extends Actor {
 //       main.RoomManager ! 
     case RoomManager(roomManager) =>
        rm = roomManager
+       
+    case RemoveChild(child) =>
+      println("stoping " + child)
+      context.stop(child)
+      
+    case GetRef(playerName) =>
+      if (players.contains(playerName)) sender ! players(playerName)
   }
+  
+  
+  
 }
 
 object PlayerManager {
@@ -57,5 +67,15 @@ object PlayerManager {
    * gets roomManager actor ref
    */
   case class RoomManager(roomManager: ActorRef)
+  
+  /**
+   * deletes actor
+   */
+  case class RemoveChild(child: ActorRef)
+  
+  /**
+   * Takes playerName, returns ActorRef
+   */
+  case class GetRef(playerName: String)
 
 }
