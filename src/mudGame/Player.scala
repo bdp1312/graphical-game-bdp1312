@@ -53,11 +53,7 @@ class Player(
      comm match{   
        case exitComm(_*) => exit()
        case say(msg) => loc ! Room.SendMessage(msg)
-       case tell(playerName, msg) =>
-         val playerRef: Option[ActorRef] = context.parent ? PlayerManager.GetRef(playerName)
-         if (playerRef.
-         playerRef ! Player.Print(msg)
-       case tell(msg) =>
+       case tell(playerName, msg) => context.parent ! PlayerManager.Tell(playerName, msg, name)
        case get(itemName) =>
        case drop(itemName) =>
        case lookAround(_*) =>
@@ -221,6 +217,7 @@ class Player(
 
 	def exit(): Unit = {
 	  loc ! Room.DropPlayer(self)
+	  context.parent ! PlayerManager.RemoveChild(self) 
 	  sock.close()
 	}
 

@@ -42,8 +42,9 @@ class PlayerManager extends Actor {
       println("stoping " + child)
       context.stop(child)
       
-    case GetRef(playerName) =>
-      if (players.contains(playerName)) sender ! players(playerName)
+    case Tell(playerName, msg, mesenger) =>
+      if (players.contains(playerName)) players(playerName) ! Player.Print(mesenger + ": " + msg)
+      else sender ! Player.Print(playerName + " not found.")
   }
   
   
@@ -76,6 +77,6 @@ object PlayerManager {
   /**
    * Takes playerName, returns ActorRef
    */
-  case class GetRef(playerName: String)
+  case class Tell(playerName: String, msg: String, mesenger: String)
 
 }
