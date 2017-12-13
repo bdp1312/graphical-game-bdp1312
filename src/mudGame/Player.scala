@@ -75,8 +75,7 @@ class Player(
        case lookAround(_*) => loc ! Room.PrintExits
        case lookRoom(_*) => loc ! Room.PrintDesc
        case lookInventory(_*) => listInventory()
-       case help(_*) => println("Controls:\nup, u = move up\n down, d = move down\n east, e = move east\n west, w = move west" +
-          "north, n = move north\n south, s = move south\n")
+       case help(_*) => helpFunct()
        
        case up(_*) => move(0)
        case down(_*) => move(1)
@@ -295,7 +294,11 @@ class Player(
        out.println(s"${inventory(0).name}: ${inventory(0).desc}")
      }
    }
- } 
+ }
+ 
+ def helpFunct(): Unit = {
+ out.println("flee a battle => flee\n attack a player or NPC => kill target\n unequip an Item = unequip\n equip an Item => equip Item\n address the room => say message\n private message => tell Player\n Pick up an Item=> get Item\n drop an Item => drop Item\n exit game => exit\n see exits => la\n look at Room => lr\n look at Inventory => li\n private val east => e\n private val west => w\n move north => n\n move south => s\n move up   => u\n move down => d\n get help  => help\n")
+ }
 
 }
   
