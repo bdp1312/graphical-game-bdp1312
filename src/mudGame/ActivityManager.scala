@@ -26,8 +26,8 @@ class ActivityManager extends Actor{
     }
   }
   
-  var activityQ = new PriorityQueue[Event](isHigherPriority)
-  //var activityQ = new BHPQ[Event](isHigherPriority) 
+  //var activityQ = new PriorityQueue[Event](isHigherPriority)
+  var activityQ = new BHPQ[Event](isHigherPriority) 
   
   import ActivityManager._
   def receive = {

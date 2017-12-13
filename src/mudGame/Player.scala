@@ -43,7 +43,7 @@ class Player(
  
  private val fleeCom = """flee(.*)""".r
  private val attack = """kill (.*)""".r
- private val unequip = """unequip(.*)""".r
+ private val unequip = """unequip (.*)""".r
  private val equip = """equip (.*)""".r
  private val say = """say (.*)""".r
  private val tell = """tell (.*):(.*)""".r
@@ -109,18 +109,20 @@ class Player(
     }
   }
   
-  def unequiping(): Unit = equiped = None
+  def unequiping(): Unit = {
+    out.println("unequiping "+ equiped.get.name)
+    equiped = None
+  }
   
   def equip(itemName: String): Unit = { //you may equip and unequip while attacking 
+    equiped = None
     var found = false
     for (i <- 0 until inventory.length){
-      while(found == false){
-        if(itemName == inventory(0).name){
+      if(itemName == inventory(0).name){
           equiped = Some(inventory(i))
           out.println(inventory(i).name + " equiped.")
           found = true
-        }
-      }
+       }
     }
     if (found == false) out.println(itemName + " not found.")
   }
