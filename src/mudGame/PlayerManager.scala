@@ -2,13 +2,14 @@ package mudGame
 
 import java.io.BufferedReader
 import java.io.PrintStream
+import java.net.Socket
 
+import RoomManager._
 import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.Props
-
-import RoomManager._
-import java.net.Socket
+import akka.pattern._
+import akka.util.Timeout.durationToTimeout
 
 
 class PlayerManager extends Actor {
@@ -21,7 +22,7 @@ class PlayerManager extends Actor {
       val lname = name.filter(_.isLetterOrDigit)
       if(context.child(lname).isEmpty){
         val NP = context.actorOf(Props(new Player(name, ps, br, sock)), lname)
-        Main.roomManager ! SendPlayerRoom(NP, "TheInn0")
+        Main.roomManager ! SendPlayerRoom(name, NP, "TheInn0")
         val mapRef = (name, NP)
         players += (mapRef)
       }else {
@@ -45,10 +46,17 @@ class PlayerManager extends Actor {
     case Tell(playerName, msg, mesenger) =>
       if (players.contains(playerName)) players(playerName) ! Player.Print(mesenger + ": " + msg)
       else sender ! Player.Print(playerName + " not found.")
+      
+    case GetRef(playerName) =>
+      val playerRef: Option[ActorRef] = { 
+        if (players.contains(playerName)) {
+          Some(players(playerName))
+        }
+        else None
+      }
+      sender ! (playerRef) 
   }
-  
-  
-  
+
 }
 
 object PlayerManager {
@@ -78,5 +86,7 @@ object PlayerManager {
    * Takes playerName, returns ActorRef
    */
   case class Tell(playerName: String, msg: String, mesenger: String)
+  
+  case class GetRef(playerName: String)
 
 }

@@ -24,21 +24,23 @@ object Main extends App {
   val roomManager = system.actorOf(Props[RoomManager], "rm")
   val playerManager = system.actorOf(Props[PlayerManager], "pm")
   val npcManager = system.actorOf(Props[NPCManager], "nm")
+  val actManager = system.actorOf(Props[ActivityManager], "am")
   
   import system.dispatcher
   
   println("Schedual event")
   system.scheduler.schedule(0.seconds, 0.1.seconds, playerManager, PlayerManager.CheckForInput)
- 
+  system.scheduler.schedule(0.seconds, 0.1.seconds, actManager, ActivityManager.Update)
+  
   val ss = new ServerSocket(12345)
   while(true) {
     val sock = ss.accept()
     var out = new PrintStream(sock.getOutputStream)
     var in = new BufferedReader(new InputStreamReader(sock.getInputStream))
-    out.println("enter your name")
+    out.println("enter your name, All lower case please")
     Future {
-      val playerName = in.readLine()
-      println("Welcome" + playerName)
+      val playerName = in.readLine().toLowerCase
+      out.println("Welcome " + playerName)
 //      while(playerName == ""){
 //        playerName = in.readLine()
 //      }

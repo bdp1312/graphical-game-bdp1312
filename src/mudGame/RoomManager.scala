@@ -24,18 +24,18 @@ class RoomManager extends Actor {
   def receive = {
     case CheckRoomStatus =>
       println(" ")
-    case SendPlayerRoom(player, place) =>
-      println("RoomManager.SendPlayerRoom" + player + place)
+    case SendPlayerRoom(name, player, place) =>
+      //println("RoomManager.SendPlayerRoom" + player + place)
       val room = rooms(place)
-      println(room)
-      player ! Player.EnterRoom(room)
-      println("Sent to player")
-      room ! Room.AddPlayer(player)
-      println("Sent to room")
+      //println(room)
+      player ! PlayChar.EnterRoom(room)
+      //println("Sent to player")
+      room ! Room.AddPlayer(name, player)
+      //println("Sent to room")
     case ChangePlayerLocation(room) =>
       println("ChangePlayerLocation")
       val newRoom = room
-      sender ! Player.EnterRoom(newRoom)
+      sender ! PlayChar.EnterRoom(newRoom)
 //    case StartPlayer(newPlayer) =>
 //      newPlayer ! Player.EnterRoom(rooms("The Inn #0"))
       
@@ -47,7 +47,7 @@ class RoomManager extends Actor {
 
 object RoomManager {
   case object CheckRoomStatus
-  case class SendPlayerRoom(player: ActorRef, place: String)
+  case class SendPlayerRoom(name: String, player: ActorRef, place: String)
   case class ChangePlayerLocation(room: ActorRef)
   case class StartPlayer(newPlayer: ActorRef)
   case class TeleportPlayer(player: ActorRef, roomKey: String)

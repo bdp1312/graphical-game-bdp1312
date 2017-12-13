@@ -4,11 +4,16 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintStream
 
+import scala.concurrent.duration._
+
 import scala.util.matching._
 
 import akka.actor.Actor
 import akka.actor.ActorRef
+import akka.util.Timeout.durationToTimeout
+
 import java.net.Socket
+import scala.util.Random
 
 
 class Player(  
@@ -27,12 +32,19 @@ class Player(
   private var inventory = new MDLList[Item]()
   private var loc: ActorRef = null
   private var health: Double = 100
-  private var stillHere: Boolean = true
-  
-  
+  //private var stillHere: Boolean = true
+  private var equiped: Option[Item] = None
+  private var fighting = false
+  private var target: Option[ActorRef] = None
+  val r = new Random(7)
   
  import Player._
+ import PlayChar._
  
+ private val fleeCom = """flee(.*)""".r
+ private val attack = """kill (.*)""".r
+ private val unequip = """unequip(.*)""".r
+ private val equip = """equip (.*)""".r
  private val say = """say (.*)""".r
  private val tell = """tell (.*):(.*)""".r
  private val get = """get (.*)""".r
@@ -50,15 +62,19 @@ class Player(
  private val help = """help(.*)""".r
  
   def processComand(comm: String): Unit = {
-     comm match{   
+     comm match{ 
+       case fleeCom(_*) => flee()
+       case attack(playerName) => attack(playerName)
        case exitComm(_*) => exit()
+       case unequip() => unequiping()
+       case equip(itemName) => equip(itemName)
        case say(msg) => loc ! Room.SendMessage(msg)
        case tell(playerName, msg) => context.parent ! PlayerManager.Tell(playerName, msg, name)
-       case get(itemName) =>
-       case drop(itemName) =>
-       case lookAround(_*) =>
-       case lookRoom(_*) =>
-       case lookInventory(_*) =>
+       case get(itemName) => getItem(itemName)
+       case drop(itemName) => dropItem(itemName)
+       case lookAround(_*) => loc ! Room.PrintExits
+       case lookRoom(_*) => loc ! Room.PrintDesc
+       case lookInventory(_*) => listInventory()
        case help(_*) => println("Controls:\nup, u = move up\n down, d = move down\n east, e = move east\n west, w = move west" +
           "north, n = move north\n south, s = move south\n")
        
@@ -71,69 +87,42 @@ class Player(
        case _ => invalidComm()
      }
   }
-  def command(comm: String): Unit = {
-    var input = comm.split(" ")
-    if (input.length == 1){
-      input = Array( comm, " ", " ")
+  def flee(): Unit = {
+    out.println("Atempting to flee.")
+    val d = r.nextInt()
+    loc ! Room.GetExit(name, d)
+  }
+  
+  def attack(playerName: String): Unit = {
+    if(fighting == false){
+      fighting = true
+      if (equiped == None){
+        val damage = 5
+        val speed = 5
+        loc ! Room.AtemptAttack(playerName, speed, damage)
+      } else {
+        val weapon = equiped.get 
+        val damage = weapon.damage
+        val speed = weapon.speed
+        loc ! Room.AtemptAttack(playerName, speed, damage)
+      }    
     }
-    //input.foreach(println)
-    if (input(0).contains("help")) {
-      println("Controls:\nup, u = move up\n down, d = move down\n east, e = move east\n west, w = move west" +
-          "north, n = move north\n south, s = move south")
-    }
-    else if (input(0).contains("up") || input(0) == ("u")){
-      move(0)
-    }
-    else if (input(0).contains("down") || input(0) == ("d")){
-      move(1)
-    }
-    else if (input(0).contains("east") || input(0) == ("e")){
-      move(2)
-    }
-    else if (input(0).contains("west") || input(0) == ("w")) {
-      move(3)
-    }
-    else if (input(0).contains("north") || input(0) == ("n")) {
-      move(4)
-    }
-    else if (input(0).contains("south") || input(0) == ("s")) {
-      move(5)
-    }
-    else if (input(0).contains("get") || input(0) == ("gi")) {
-      getItem(input(1))                             
-    }
-    else if (input(0).contains("drop") || input(0) == ("di")) {
-      dropItem(input(1))
-    }
-    else if (input(0).contains("look") || input(0).contains("l")) {
-        if (input(1).contains("inventory") || input(1).contains("inv") || input(0) == ("li")) {
-          listInventory()
+  }
+  
+  def unequiping(): Unit = equiped = None
+  
+  def equip(itemName: String): Unit = { //you may equip and unequip while attacking 
+    var found = false
+    for (i <- 0 until inventory.length){
+      while(found == false){
+        if(itemName == inventory(0).name){
+          equiped = Some(inventory(i))
+          out.println(inventory(i).name + " equiped.")
+          found = true
         }
-        else if (input(1).contains("room") || input(1).contains("r") || input(0) == ("lr")) {
-          loc ! Room.PrintDesc
-        }
-        else if (input(1).contains("around") || input(1).contains("a") || input(0).contains("la")){
-          loc ! Room.PrintExits
-        }
-        else{
-          invalidComm()
-        }
+      }
     }
-    else if (input(0).contains("exit")) {
-      exit()    
-    }
-    
-    else if (input(0).contains("say")) {
-      loc ! Room.SendMessage(input(1))
-    }
-    
-    else if (input(0).contains("tell")) {
-      context.parent ! PlayerManager.SendMessage(input(1))
-    }
-    
-    else {
-      invalidComm()
-    }
+    if (found == false) out.println(itemName + " not found.")
   }
 
   def receive = {
@@ -164,7 +153,7 @@ class Player(
     /**
      * prints message 
      */
-    case Print(string) => out.println("Print\n" + string)
+    case Print(string) => out.println(string)
      
     case PlaceValue(room) =>
       println("Player.PlaceValue")
@@ -172,9 +161,29 @@ class Player(
       sender ! RoomManager.ChangePlayerLocation(room)
      // if(actionChoice == 1) room ! Room.PrintDesc 
   
-    
+    case Hit(playerName, player, damage)=>      
+      out.println(s"You hit $playerName for $damage damage.")
+      player ! PlayChar.Damage(playerName, player, damage)
+      fighting = false
+      attack(playerName)
+      
+    case Damage(perpName, perp, amount) => 
+      out.println(s"$perpName has hit you for $amount damage!")
+      val newHealth = health - amount
+      health = newHealth
+      if(health <= 0){
+        out.println("You have been killed")
+        context.parent ! PlayerManager.SendMessage(s"$name had died.")
+        exit()
+      }
+  
+    case NoSuchPlayer(msg) =>
+      out.println(msg)
+      fighting = false
+      
     case m =>
-      println("Oops! Bad message to:" + self.toString() + m)  }
+      println("Oops! Bad message to:" + self.toString() + m)  
+  }
   
   def getItem(itemName: String): Unit = {
     loc ! Room.GetItem(itemName)
@@ -216,8 +225,14 @@ class Player(
   
 
 	def exit(): Unit = {
-	  loc ! Room.DropPlayer(self)
+	  for(i <- 0 until inventory.length){
+      val prize = inventory(i)
+      inventory.remove(i)
+      loc ! Room.DropItem(prize)
+    }
+	  loc ! Room.DropPlayer(name, self)
 	  context.parent ! PlayerManager.RemoveChild(self) 
+	  context.stop(self)
 	  sock.close()
 	}
 
@@ -225,7 +240,7 @@ class Player(
  * move
  */
   def move(direction: Int): Unit = {
-    loc ! Room.GetExit(direction) 
+    loc ! Room.GetExit(name, direction) 
   } 
   /**
    * look out function
@@ -233,7 +248,7 @@ class Player(
    * Sends directional argument to loc
    */
   def lookOut(direction: Int): Unit = {
-    loc ! Room.GetExit(direction) 
+    loc ! Room.GetExit(name, direction) 
   }  
       
         
@@ -298,11 +313,13 @@ object Player {
    */
   case class RemoveItem(item: Item)
   case object NoSuchItem
-  case class EnterRoom(room: ActorRef)
+  
   /**
    * prints message 
    */
   case class Print(string: String)
   case class CheckMove(exitVal: String)
   case class PlaceValue(room: ActorRef)
+  
+  
 }
