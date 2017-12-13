@@ -43,7 +43,7 @@ class Player(
  
  private val fleeCom = """flee(.*)""".r
  private val attack = """kill (.*)""".r
- private val unequip = """unequip (.*)""".r
+ private val unequip = """unequip(.*)""".r
  private val equip = """equip (.*)""".r
  private val say = """say (.*)""".r
  private val tell = """tell (.*):(.*)""".r
